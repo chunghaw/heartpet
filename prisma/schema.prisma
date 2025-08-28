@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  pets          Pet[]
+  checkins      CheckIn[]
+  executions    Execution[]
+  categoryWeights CategoryWeight[]
+  created_at    DateTime  @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Pet {
+  id         String   @id @default(cuid())
+  user_id    String
+  name       String
+  species    String   // seedling_spirit, cloud_kitten, pocket_dragon
+  color      String
+  size       String   // sm, md, lg
+  breed      String?
+  stage      String   // egg, hatchling, sproutling, floof
+  xp         Int      @default(0)
+  created_at DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  executions Execution[]
+  petProps   PetProp[]
+}
+
+model Action {
+  id         String   @id @default(cuid())
+  title      String
+  steps      String[]
+  seconds    Int
+  category   String
+  why        String
+  embedding  Float[]  // Vector for Milvus
+  
+  executions Execution[]
+}
+
+model CheckIn {
+  id         String   @id @default(cuid())
+  user_id    String
+  text       String
+  emoji      Int?
+  cues       Json?    // VisionCues as JSON
+  mood       String?  // calm, happy, playful, focused, sensitive, creative, intense
+  energy     String?  // low, medium, high
+  focus      String[] // Body focus areas
+  red_flags  Boolean  @default(false)
+  created_at DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Execution {
+  id               String   @id @default(cuid())
+  user_id          String
+  pet_id           String
+  action_id        String
+  seconds          Int
+  foreground_ratio Float
+  hold_confirm     Boolean
+  completed        Boolean
+  helpful          Boolean?
+  created_at       DateTime @default(now())
+  
+  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pet              Pet      @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+  action           Action   @relation(fields: [action_id], references: [id], onDelete: Cascade)
+}
+
+model CategoryWeight {
+  user_id   String
+  category  String
+  weight    Float    @default(1.0)
+  
+  @@id([user_id, category])
+  
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model HabitatProp {
+  id    String @id @default(cuid())
+  key   String @unique
+  label String
+}
+
+model PetProp {
+  pet_id  String
+  prop_id String
+  owned   Boolean @default(false)
+  
+  @@id([pet_id, prop_id])
+  
+  pet     Pet         @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+  prop    HabitatProp @relation(fields: [prop_id], references: [id], onDelete: Cascade)
+}
