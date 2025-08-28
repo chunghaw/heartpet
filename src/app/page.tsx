@@ -3,18 +3,9 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Pet } from '@/types';
-import { Heart, LogIn, LogOut, User } from 'lucide-react';
+import { LogIn, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-export default function Home() {
-  const { data: session, status } = useSession();
-  const [pet, setPet] = useState<Pet | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
+import HeartPetLogo from '@/components/HeartPetLogo';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -89,7 +80,7 @@ export default function Home() {
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Heart className="w-10 h-10 text-green-600" />
+              <HeartPetLogo className="w-10 h-10 text-green-600" />
             </div>
             
             <h1 className="text-3xl font-bold text-gray-800 mb-2">HeartPet</h1>
@@ -146,18 +137,7 @@ export default function Home() {
             </button>
           </form>
           
-          {/* Quick Test Account */}
-          <div className="text-center mb-6">
-            <button
-              onClick={() => {
-                setEmail('chunghawtan@gmail.com');
-                setPassword('test123');
-              }}
-              className="text-sm text-green-600 hover:text-green-700 underline"
-            >
-              Use Test Account
-            </button>
-          </div>
+
           
           {/* Divider */}
           <div className="relative mb-6">
@@ -189,7 +169,7 @@ export default function Home() {
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <Heart className="w-5 h-5 text-green-600" />
+              <HeartPetLogo className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <h1 className="font-semibold text-gray-800">HeartPet</h1>
@@ -226,7 +206,7 @@ export default function Home() {
             {/* Pet Display */}
             <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
               <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-16 h-16 text-green-600" />
+                <HeartPetLogo className="w-16 h-16 text-green-600" />
               </div>
               
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{pet.name}</h2>

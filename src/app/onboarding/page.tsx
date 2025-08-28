@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import HeartPetLogo from '@/components/HeartPetLogo';
 
 const PET_SPECIES = [
   { id: 'seedling_spirit', name: 'Seedling Spirit', description: 'A gentle plant companion that grows with your care' },
@@ -70,13 +71,13 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 mt-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to HeartPet!</h1>
-          <p className="text-gray-600">Let's create your perfect companion</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to HeartPet!</h1>
+          <p className="text-gray-700">Let's create your perfect companion</p>
         </div>
 
         {/* Pet Name */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
             What's your pet's name?
           </label>
           <input
@@ -91,7 +92,7 @@ export default function OnboardingPage() {
 
         {/* Pet Species */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-gray-900 mb-3">
             Choose your pet's species:
           </label>
           <div className="space-y-3">
@@ -105,8 +106,8 @@ export default function OnboardingPage() {
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="font-medium text-gray-800">{species.name}</div>
-                <div className="text-sm text-gray-600">{species.description}</div>
+                <div className="font-medium text-gray-900">{species.name}</div>
+                <div className="text-sm text-gray-700">{species.description}</div>
               </div>
             ))}
           </div>
@@ -114,7 +115,7 @@ export default function OnboardingPage() {
 
         {/* Pet Color */}
         <div className="mb-8">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-gray-900 mb-3">
             Pick your pet's color:
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -132,7 +133,7 @@ export default function OnboardingPage() {
                   className="w-8 h-8 rounded-full mx-auto mb-2"
                   style={{ backgroundColor: color.hex }}
                 />
-                <div className="text-xs text-center text-gray-700">{color.name}</div>
+                <div className="text-xs text-center text-gray-900 font-medium">{color.name}</div>
               </div>
             ))}
           </div>
