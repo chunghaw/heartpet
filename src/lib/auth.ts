@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { createDefaultPet } from "./database";
 import { sql } from "@vercel/postgres";
 
 // Extend NextAuth types
