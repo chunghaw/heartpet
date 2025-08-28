@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { createDefaultPet } from "./database";
+import { sql } from "@vercel/postgres";
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -44,13 +45,20 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signIn({ user, isNewUser }) {
-      if (isNewUser) {
+      try {
+        // Create user in database if they don't exist
+        await sql`
+          INSERT INTO users (id, name, email, image)
+          VALUES (${user.id}, ${user.name}, ${user.email}, ${user.image})
+          ON CONFLICT (id) DO NOTHING
+        `;
+        
         // Create default pet for new user
-        try {
+        if (isNewUser) {
           await createDefaultPet(user.id);
-        } catch (error) {
-          console.error('Failed to create default pet:', error);
         }
+      } catch (error) {
+        console.error('Failed to create user/pet:', error);
       }
     },
   },
