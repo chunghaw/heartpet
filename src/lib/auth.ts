@@ -98,14 +98,16 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    async signIn({ user, isNewUser }) {
+    async signIn({ user, isNewUser, account }) {
       try {
-        // Create user in database if they don't exist
-        await sql`
-          INSERT INTO users (id, name, email, image)
-          VALUES (${user.id}, ${user.name}, ${user.email}, ${user.image})
-          ON CONFLICT (id) DO NOTHING
-        `;
+        // Only create user for Google OAuth, not for credentials
+        if (account?.provider === 'google') {
+          await sql`
+            INSERT INTO users (id, name, email, image)
+            VALUES (${user.id}, ${user.name}, ${user.email}, ${user.image})
+            ON CONFLICT (id) DO NOTHING
+          `;
+        }
         
         // Don't create pet automatically - let user choose in onboarding
       } catch (error) {

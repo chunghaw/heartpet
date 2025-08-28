@@ -10,6 +10,20 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+export default function Home() {
+  const { data: session, status } = useSession();
+  const [pet, setPet] = useState<Pet | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -17,6 +31,28 @@ export default function Home() {
       fetchPet();
     }
   }, [session]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningIn(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+      }
+    } catch (error) {
+      setError('Sign in failed. Please try again.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   const fetchPet = async () => {
     try {
@@ -50,50 +86,97 @@ export default function Home() {
   if (!session) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Heart className="w-10 h-10 text-green-600" />
-          </div>
-          
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">HeartPet</h1>
-          <p className="text-gray-600 mb-8">
-            Adopt a personal pet that grows with your emotional wellness journey
-          </p>
-          
-          <div className="space-y-4">
-            <button
-              onClick={() => signIn('credentials', { 
-                email: 'chunghawtan@gmail.com', 
-                password: 'test123' 
-              })}
-              className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
-            >
-              <LogIn size={20} />
-              <span>Quick Sign In (Test Account)</span>
-            </button>
-            
-            <div className="text-sm text-gray-500">
-              Email: chunghawtan@gmail.com<br/>
-              Password: test123
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Heart className="w-10 h-10 text-green-600" />
             </div>
             
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or</span>
-              </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">HeartPet</h1>
+            <p className="text-gray-600">
+              Adopt a personal pet that grows with your emotional wellness journey
+            </p>
+          </div>
+          
+          {/* Email/Password Form */}
+          <form onSubmit={handleSignIn} className="space-y-4 mb-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
             </div>
             
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            
+            {error && (
+              <div className="text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+            
             <button
-              onClick={() => signIn('google')}
-              className="w-full bg-white text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200 flex items-center justify-center space-x-2"
+              type="submit"
+              disabled={isSigningIn}
+              className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
             >
               <LogIn size={20} />
-              <span>Sign in with Google</span>
+              <span>{isSigningIn ? 'Signing in...' : 'Sign In'}</span>
+            </button>
+          </form>
+          
+          {/* Quick Test Account */}
+          <div className="text-center mb-6">
+            <button
+              onClick={() => {
+                setEmail('chunghawtan@gmail.com');
+                setPassword('test123');
+              }}
+              className="text-sm text-green-600 hover:text-green-700 underline"
+            >
+              Use Test Account
             </button>
           </div>
+          
+          {/* Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or</span>
+            </div>
+          </div>
+          
+          {/* Google Sign In */}
+          <button
+            onClick={() => signIn('google')}
+            className="w-full bg-white text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200 flex items-center justify-center space-x-2"
+          >
+            <LogIn size={20} />
+            <span>Sign in with Google</span>
+          </button>
         </div>
       </div>
     );
