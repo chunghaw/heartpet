@@ -53,12 +53,9 @@ export const authOptions: NextAuthOptions = {
           ON CONFLICT (id) DO NOTHING
         `;
         
-        // Create default pet for new user
-        if (isNewUser) {
-          await createDefaultPet(user.id);
-        }
+        // Don't create pet automatically - let user choose in onboarding
       } catch (error) {
-        console.error('Failed to create user/pet:', error);
+        console.error('Failed to create user:', error);
       }
     },
   },

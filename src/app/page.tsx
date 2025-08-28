@@ -24,6 +24,10 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         setPet(data.pet);
+      } else if (response.status === 404) {
+        // No pet found, redirect to onboarding
+        router.push('/onboarding');
+        return;
       }
     } catch (error) {
       console.error('Failed to fetch pet:', error);
@@ -153,7 +157,13 @@ export default function Home() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600">No pet found. Please try refreshing the page.</p>
+            <p className="text-gray-600 mb-4">No pet found.</p>
+            <button 
+              onClick={() => router.push('/onboarding')}
+              className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Create Your Pet
+            </button>
           </div>
         )}
       </main>

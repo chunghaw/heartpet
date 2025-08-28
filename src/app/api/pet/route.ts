@@ -34,6 +34,41 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { name, species, color } = body;
+
+    if (!name || !species || !color) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Check if user already has a pet
+    const existingPet = await getUserPet(session.user.id);
+    if (existingPet) {
+      return NextResponse.json({ error: 'User already has a pet' }, { status: 400 });
+    }
+
+    // Create new pet
+    const { rows } = await sql`
+      INSERT INTO pets (user_id, name, species, color, size, stage, xp)
+      VALUES (${session.user.id}, ${name}, ${species}, ${color}, 'md', 'egg', 0)
+      RETURNING *
+    `;
+
+    return NextResponse.json({ pet: rows[0] });
+  } catch (error) {
+    console.error('Failed to create pet:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
