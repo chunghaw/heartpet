@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "migrate": "tsx scripts/setup-db.ts",
-    "seed:milvus": "tsx scripts/seed-milvus.ts"
+    "seed:milvus": "tsx scripts/seed-milvus.ts",
+    "setup:vercel": "tsx scripts/setup-vercel-db.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
