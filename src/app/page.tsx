@@ -60,13 +60,40 @@ export default function Home() {
             Adopt a personal pet that grows with your emotional wellness journey
           </p>
           
-          <button
-            onClick={() => signIn('google')}
-            className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
-          >
-            <LogIn size={20} />
-            <span>Sign in with Google</span>
-          </button>
+          <div className="space-y-4">
+            <button
+              onClick={() => signIn('credentials', { 
+                email: 'chunghawtan@gmail.com', 
+                password: 'test123' 
+              })}
+              className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+            >
+              <LogIn size={20} />
+              <span>Quick Sign In (Test Account)</span>
+            </button>
+            
+            <div className="text-sm text-gray-500">
+              Email: chunghawtan@gmail.com<br/>
+              Password: test123
+            </div>
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => signIn('google')}
+              className="w-full bg-white text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200 flex items-center justify-center space-x-2"
+            >
+              <LogIn size={20} />
+              <span>Sign in with Google</span>
+            </button>
+          </div>
         </div>
       </div>
     );

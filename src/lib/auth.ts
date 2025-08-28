@@ -1,6 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { sql } from "@vercel/postgres";
+import bcrypt from "bcryptjs";
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -23,6 +25,59 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          // Check if user exists
+          const { rows } = await sql`
+            SELECT * FROM users WHERE email = ${credentials.email}
+          `;
+
+          if (rows.length === 0) {
+            // Create new user if they don't exist
+            const hashedPassword = await bcrypt.hash(credentials.password, 10);
+            const { rows: newUser } = await sql`
+              INSERT INTO users (id, email, name, password_hash)
+              VALUES (${credentials.email}, ${credentials.email}, ${credentials.email.split('@')[0]}, ${hashedPassword})
+              RETURNING *
+            `;
+            return {
+              id: newUser[0].id,
+              email: newUser[0].email,
+              name: newUser[0].name,
+            };
+          }
+
+          const user = rows[0];
+          
+          // Check password
+          if (user.password_hash) {
+            const isValid = await bcrypt.compare(credentials.password, user.password_hash);
+            if (isValid) {
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+              };
+            }
+          }
+
+          return null;
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
+        }
+      }
     }),
   ],
   session: {
