@@ -115,6 +115,48 @@ function CoachPageContent() {
                 This helps us personalize future recommendations
               </p>
             </div>
+
+            {/* Reset Quest Button */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={async () => {
+                  const userAnswer = sessionStorage.getItem('userAnswer') || '';
+                  const originalData = sessionStorage.getItem('coachData');
+                  if (originalData) {
+                    const data = JSON.parse(originalData);
+                    
+                    // Add user feedback to the request
+                    const resetPayload = {
+                      ...data,
+                      userFeedback: userAnswer,
+                      resetRequest: true
+                    };
+                    
+                    try {
+                      const response = await fetch('/api/coach', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(resetPayload)
+                      });
+                      
+                      if (response.ok) {
+                        const newData = await response.json();
+                        sessionStorage.setItem('coachResponse', JSON.stringify(newData));
+                        window.location.reload(); // Refresh to show new quest
+                      }
+                    } catch (error) {
+                      console.error('Reset failed:', error);
+                    }
+                  }
+                }}
+                className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition-colors"
+              >
+                🔄 Reset Quest
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Get a different suggestion based on your feedback
+              </p>
+            </div>
           </div>
           
           {/* Action Suggestion */}

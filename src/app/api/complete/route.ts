@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@vercel/postgres'
 
 function stageForXP(xp: number) { 
-  return xp >= 150 ? 'floof' : xp >= 100 ? 'sproutling' : xp >= 50 ? 'hatchling' : 'egg' 
+  return xp >= 150 ? 'floof' : xp >= 100 ? 'sproutling' : xp >= 10 ? 'hatchling' : 'egg' 
 }
 
 export async function POST(req: NextRequest) {

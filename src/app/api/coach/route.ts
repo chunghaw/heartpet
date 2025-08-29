@@ -107,39 +107,88 @@ async function analyzeInput(input: any) {
   }
 }
 
-// Simple recommend function (Postgres fallback)
+// Enhanced recommend function with database lookup
 async function recommendAction(input: any) {
   try {
     console.log('🎯 Recommending action for input:', JSON.stringify(input, null, 2));
     
-    // For now, return a simple action from the database
-    // This will be enhanced later with proper vector search
-    const recommendation = {
-      action_id: "simple_breathing",
-      title: "Take 3 deep breaths",
-      steps: [
-        "Find a comfortable position",
-        "Close your eyes",
-        "Breathe in for 4 counts, hold for 4, exhale for 4"
-      ],
-      seconds: 60,
-      category: "Soothe",
-      tags: ["breathing", "calm", "mindfulness"],
-      why: "Deep breathing activates your parasympathetic nervous system, helping you feel calmer and more centered.",
-      explain: {
-        cos: 0.8,
-        weight: 1.0,
-        fit_energy: 1.0,
-        novelty: 0.9,
-        weather_affinity: 0.0
-      }
-    };
+    // Use direct database lookup for now
+    const { sql } = await import('@vercel/postgres');
     
-    console.log('✅ Recommendation:', recommendation);
-    return recommendation;
+    // Check if user wants to avoid breathing exercises
+    const userFeedback = input.userFeedback || '';
+    const avoidBreathing = userFeedback.toLowerCase().includes('breathing') || 
+                          userFeedback.toLowerCase().includes('breath');
+    
+    let query = `
+      SELECT id, title, steps, seconds, category, tags, why 
+      FROM actions 
+      WHERE category = ANY($1)
+    `;
+    
+    let params = [input.focus || ['Soothe', 'Connect']];
+    
+    // If user doesn't want breathing, exclude those actions
+    if (avoidBreathing) {
+      query += ` AND NOT (tags @> ARRAY['breathing'] OR title ILIKE '%breath%')`;
+    }
+    
+    query += ` ORDER BY RANDOM() LIMIT 1`;
+    
+    const { rows } = await sql.query(query, params);
+    
+    if (rows.length > 0) {
+      const action = rows[0];
+      return {
+        action_id: action.id,
+        title: action.title,
+        steps: action.steps,
+        seconds: action.seconds,
+        category: action.category,
+        tags: action.tags,
+        why: action.why,
+        explain: {
+          cos: 0.7,
+          weight: 1.0,
+          fit_energy: 1.0,
+          novelty: 0.8,
+          weather_affinity: 0.0
+        }
+      };
+    }
+    
+    // If no action found, get any random action
+    const { rows: fallbackRows } = await sql`
+      SELECT id, title, steps, seconds, category, tags, why 
+      FROM actions 
+      ORDER BY RANDOM() 
+      LIMIT 1
+    `;
+    
+    if (fallbackRows.length > 0) {
+      const action = fallbackRows[0];
+      return {
+        action_id: action.id,
+        title: action.title,
+        steps: action.steps,
+        seconds: action.seconds,
+        category: action.category,
+        tags: action.tags,
+        why: action.why,
+        explain: {
+          cos: 0.6,
+          weight: 0.8,
+          fit_energy: 0.8,
+          novelty: 0.9,
+          weather_affinity: 0.0
+        }
+      };
+    }
+    
+    throw new Error('No actions found in database');
   } catch (error) {
     console.error('❌ Recommend failed:', error)
-    throw error
+    throw error;
   }
 }
 
