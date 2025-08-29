@@ -27,8 +27,8 @@ function xpForNextLevel(currentLevel: number) {
 function stageForLevel(level: number) { 
   if (level >= 10) return 'floof'
   if (level >= 7) return 'sproutling' 
-  if (level >= 4) return 'hatchling'
-  return 'egg'
+  if (level >= 2) return 'hatchling'  // Level 2+ shows hatchling
+  return 'egg'  // Only level 1 shows egg
 }
 
 export async function POST(req: NextRequest) {
