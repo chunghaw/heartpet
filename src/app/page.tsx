@@ -256,10 +256,22 @@ export default function Home() {
                   onClick={() => router.push('/collection')}
                   className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
                 >
-                  History
+                  View History
                 </button>
                 <p className="text-sm text-gray-600 mt-2">
                   View your check-ins and completed care quests
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <button 
+                  onClick={() => alert('User Profile feature coming soon!')}
+                  className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
+                >
+                  User Profile
+                </button>
+                <p className="text-sm text-gray-600 mt-2">
+                  Hobbies & Wishlist personalization is under development
                 </p>
               </div>
             </div>

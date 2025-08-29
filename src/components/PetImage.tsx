@@ -10,13 +10,27 @@ interface PetImageProps {
 }
 
 export default function PetImage({ pet, size = 'md', className = '' }: PetImageProps) {
-  const getPetImage = () => {
+    const getPetImage = () => {
     // Level 1 is always egg
     if (pet.level === 1) {
       return '/pets/egg_classic_full.png'
     }
     
-    // Level 2+ shows the actual pet (regardless of stage)
+    // Level 2 is hatchling (smaller version of the pet)
+    if (pet.level === 2) {
+      switch (pet.species) {
+        case 'doggo':
+          return '/pets/dog-beagle-2.png' // Using same image but smaller size
+        case 'kitten':
+          return '/pets/cat-graywhite.png' // Using same image but smaller size
+        case 'dragon':
+          return '/pets/dragon_red.PNG' // Using same image but smaller size
+        default:
+          return '/pets/egg_classic_full.png'
+      }
+    }
+    
+    // Level 3+ shows the full grown pet
     switch (pet.species) {
       case 'doggo':
         return '/pets/dog-beagle-2.png'
@@ -24,12 +38,6 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
         return '/pets/cat-graywhite.png'
       case 'dragon':
         return '/pets/dragon_red.PNG'
-      case 'pocket_dragon': // Handle legacy species name
-        return '/pets/dragon_red.PNG'
-      case 'cloud_kitten': // Handle legacy species name
-        return '/pets/cat-graywhite.png'
-      case 'seedling_spirit': // Handle legacy species name
-        return '/pets/egg_classic_full.png'
       default:
         return '/pets/egg_classic_full.png'
     }
