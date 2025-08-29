@@ -255,9 +255,7 @@ function CoachPageContent() {
               >
                 🔄 Reset Quest
               </button>
-              <p className="text-xs text-gray-500 mt-1">
-                Get a different suggestion based on your feedback
-              </p>
+
             </div>
           )}
           
