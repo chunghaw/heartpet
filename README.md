@@ -1,162 +1,288 @@
 # 🐾 HeartPet - Emotional Wellness Companion
 
-A mobile-first web app where users adopt evolving pets through AI-powered care quests. Transform feelings into gentle actions and watch your pet grow!
+A mobile-first web application that helps users adopt a personal pet that evolves by completing tiny 1-3 minute "Care Quests" based on their emotional state. The core AI loop is: emotion input → empathetic reflection → one suggestion → verified completion → XP → pet evolution.
 
 ## ✨ Features
 
-- **Personal Pet Adoption**: Choose from seedling spirits, cloud kittens, or pocket dragons
-- **AI-Powered Care Quests**: LLM analyzes emotions → suggests micro-actions → pet gets XP
-- **Pet Evolution**: egg → hatchling → sproutling → floof (50/100/150 XP)
-- **Camera Integration**: Optional selfie/surroundings scan for mood cues
-- **Personalization**: Learns from your preferences and feedback
-- **Safety First**: Crisis detection and content moderation
-- **Mobile Optimized**: Beautiful UI designed for phones
+### 🏠 **Home Page**
+- **Pet Display**: Shows your pet's image, name, level, stage, and XP progress
+- **Hero Intro**: Personalized greeting from your pet explaining the app
+- **Quick Check In**: Fast mood logging without full AI coach flow
+- **Check In & Care**: Full AI-powered emotional wellness journey
+- **View Collection**: Complete history of check-ins and completed actions
+- **How It Works**: 4-step process explanation (Check in → AI reflects → Care Quest → Bloom)
 
-## 🏗️ Tech Stack
+### 🐕 **Pet System**
+- **3 Pet Species**: Doggo, Kitten, and Dragon with custom images
+- **Level Progression**: Egg stage (Level 1) → Actual pet (Level 2+)
+- **XP System**: 10 XP for Level 1, 20 XP from Level 5 onwards
+- **Stage Evolution**: Egg → Hatchling → Sproutling → Floof
+- **Custom Images**: 
+  - Level 1: `egg_classic_full.png`
+  - Doggo: `dog-beagle-2.png`
+  - Kitten: `cat-graywhite.png`
+  - Dragon: `dragon_red.PNG`
 
-- **Frontend**: Next.js 14 + TypeScript + Tailwind CSS
-- **Backend**: Next.js API routes + Auth.js (Google OAuth)
-- **Database**: Vercel Postgres
-- **AI**: OpenAI (gpt-4o-mini + text-embedding-3-small)
-- **Vector Search**: Milvus (Zilliz Cloud)
-- **Animations**: Rive (preferred) or Lottie
-- **Deployment**: Vercel Pro
+### 📱 **Check-In System**
+- **Text Input**: Share your thoughts and feelings
+- **Emoji Slider**: Mood selection from 😢 to 😊
+- **Optional Context**: Selfie and surroundings photos
+- **Weather Integration**: Automatic weather data for context-aware suggestions
+- **Quick Check In**: Simple modal for fast mood logging
+- **Full Check In**: Complete flow with AI analysis and recommendations
+
+### 🤖 **AI-Powered Features**
+- **Emotional Analysis**: GPT-4o-mini analyzes text, images, and weather
+- **Personalized Reflection**: Empathetic responses tailored to your situation
+- **Context-Aware Insights**: 
+  - Selfie analysis for emotional cues
+  - Surroundings analysis for environmental context
+  - Weather insights for outdoor/indoor recommendations
+- **Care Quest Generation**: 1-3 minute micro-actions based on your needs
+- **Weather-Aware Suggestions**: Activities adapted to current weather conditions
+
+### 🎯 **Care Quests**
+- **5 Categories**: Connect, Tidy, Nourish, Soothe, Reset
+- **Personalized Scoring**: 
+  - Cosine similarity for semantic matching
+  - Category weight based on user preferences
+  - Energy level matching
+  - Novelty scoring to avoid repetition
+  - Weather affinity for outdoor/indoor activities
+- **Timer System**: 1-3 minute countdown with progress tracking
+- **Foreground Detection**: Ensures user stays engaged
+- **Hold-to-Complete**: 2-second hold gesture for completion
+- **Reset Function**: Get new suggestions based on feedback
+
+### 📊 **Collection & History**
+- **Check-ins Tab**: Complete history of emotional check-ins with timestamps
+- **Actions Tab**: All completed Care Quests with categories, duration, and XP earned
+- **Visual Timeline**: See your emotional wellness journey over time
+- **Feedback System**: Thumbs up/down for completed actions
+
+### 🔐 **Authentication**
+- **Google OAuth**: Seamless sign-in with Google
+- **Email/Password**: Traditional authentication option
+- **Session Management**: Secure JWT-based sessions
+- **User Profiles**: Personalized experience for each user
 
 ## 🚀 Quick Start
 
-### 1. Clone & Install
+### Prerequisites
+- Node.js 18+ 
+- PostgreSQL database (Vercel Postgres recommended)
+- OpenAI API key
+- Google OAuth credentials (optional)
 
-```bash
-git clone <your-repo>
-cd HeartPet
-npm install
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/heartpet.git
+   cd heartpet
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Fill in your environment variables:
+   ```env
+   # Database
+   POSTGRES_URL=your_postgres_connection_string
+   
+   # OpenAI
+   OPENAI_API_KEY=your_openai_api_key
+   
+   # Authentication
+   NEXTAUTH_SECRET=your_nextauth_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   
+   # Vercel (if deploying)
+   VERCEL_URL=your_vercel_url
+   ```
+
+4. **Set up the database**
+   ```bash
+   npm run migrate
+   npm run seed:milvus
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📁 Project Structure
+
+```
+HeartPet/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── analyze/          # AI emotional analysis
+│   │   │   ├── checkin/          # Quick check-in storage
+│   │   │   ├── checkins/         # Check-in history retrieval
+│   │   │   ├── coach/            # Main AI orchestration
+│   │   │   ├── complete/         # Action completion & XP
+│   │   │   ├── executions/       # Action history retrieval
+│   │   │   ├── pet/              # Pet management
+│   │   │   ├── recommend/        # Care Quest recommendations
+│   │   │   └── weather/          # Weather data
+│   │   ├── action/               # Care Quest execution page
+│   │   ├── checkin/              # Full check-in flow
+│   │   ├── coach/                # AI reflection & suggestions
+│   │   ├── collection/           # User history & progress
+│   │   ├── completion/           # Quest completion celebration
+│   │   ├── onboarding/           # Pet creation
+│   │   └── page.tsx              # Home page
+│   ├── components/
+│   │   ├── CameraSheet.tsx       # Photo capture component
+│   │   ├── HeartPetLogo.tsx      # App logo
+│   │   ├── HomeIntro.tsx         # Hero section
+│   │   ├── HowItWorks.tsx        # Process explanation
+│   │   ├── PetImage.tsx          # Pet display component
+│   │   └── SafetyBanner.tsx      # Crisis support
+│   ├── lib/
+│   │   ├── auth.ts               # NextAuth configuration
+│   │   ├── database.ts           # Database helpers
+│   │   └── milvus.ts             # Vector database client
+│   └── types/
+│       └── index.ts              # TypeScript definitions
+├── scripts/
+│   ├── add-more-actions.ts       # Add new Care Quests
+│   ├── add-user-actions.ts       # User-provided actions
+│   ├── check-database-schema.ts  # Database verification
+│   ├── debug-llm-process.ts      # LLM debugging
+│   ├── remove-deep-breaths.ts    # Remove specific actions
+│   ├── seed-milvus.ts            # Vector database seeding
+│   └── show-database-state.ts    # Database inspection
+├── public/
+│   └── pets/                     # Pet images
+└── package.json
 ```
 
-### 2. Environment Setup
-
-Copy the environment template and fill in your API keys:
+## 🛠️ Available Scripts
 
 ```bash
-# Edit .env with your actual values
-POSTGRES_URL="postgresql://username:password@host:port/database"
-POSTGRES_PRISMA_URL="postgresql://username:password@host:port/database?pgbouncer=true&connect_timeout=15"
-POSTGRES_URL_NON_POOLING="postgresql://username:password@host:port/database"
-POSTGRES_USER="your-username"
-POSTGRES_HOST="your-host"
-POSTGRES_PASSWORD="your-password"
-POSTGRES_DATABASE="your-database"
+# Development
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run start            # Start production server
 
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-nextauth-secret-here"
+# Database
+npm run migrate          # Run database migrations
+npm run seed:milvus      # Seed vector database with actions
 
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
+# Utilities
+npm run show:db          # Show database state
+npm run debug:llm        # Debug LLM processing
+npm run remove:breaths   # Remove specific actions
+npm run add:user:actions # Add user-provided actions
+npm run update:pet:species # Update pet species names
+npm run check:db:schema  # Check database schema
 
-OPENAI_API_KEY="your-openai-api-key"
-
-MILVUS_URI="https://your-cluster.zillizcloud.com"
-MILVUS_USER="your-milvus-username"
-MILVUS_PASSWORD="your-milvus-password"
-
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NODE_ENV="development"
+# Deployment
+npm run deploy           # Deploy to Vercel
 ```
 
-### 3. Database Setup
+## 🔧 API Endpoints
 
-```bash
-# Initialize database with schema and seed data
-npm run setup-db
-```
+### Core Endpoints
+- `POST /api/checkin` - Save quick check-in
+- `POST /api/coach` - Main AI orchestration
+- `POST /api/analyze` - Emotional analysis
+- `POST /api/recommend` - Care Quest recommendations
+- `POST /api/complete` - Complete action & earn XP
 
-### 4. Start Development
+### Data Retrieval
+- `GET /api/checkins` - Get user's check-in history
+- `GET /api/executions` - Get user's completed actions
+- `GET /api/pet` - Get user's pet data
+- `GET /api/weather` - Get weather data
 
-```bash
-npm run dev
-```
-
-Visit `http://localhost:3000` to see HeartPet in action!
-
-## 🔑 Required API Keys
-
-### **1. Vercel Postgres**
-- Get from: [Vercel Dashboard](https://vercel.com/dashboard) → Storage → Create Database
-- Free tier: 256MB storage, 100 connections
-
-### **2. Google OAuth**
-- Get from: [Google Cloud Console](https://console.cloud.google.com)
-- Create OAuth 2.0 credentials for web application
-- Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
-
-### **3. OpenAI API**
-- Get from: [OpenAI Platform](https://platform.openai.com)
-- Required for: AI analysis, embeddings, vision analysis
-- Cost: ~$0.01-0.05 per request
-
-### **4. Milvus/Zilliz Cloud**
-- Get from: [Zilliz Cloud](https://cloud.zilliz.com)
-- Free tier: 1GB storage, 1000 requests/day
-- Required for: Vector search of actions
-
-## 📱 User Journey
-
-1. **Sign In** → Google OAuth authentication
-2. **Adopt Pet** → Automatic creation of seedling spirit
-3. **Check In** → Share feelings + optional camera scan
-4. **AI Analysis** → Empathetic response + mood detection
-5. **Care Quest** → Personalized micro-action suggestion
-6. **Complete Action** → Timer + verification + XP gain
-7. **Pet Growth** → Evolution at 50/100/150 XP milestones
-
-## 🛠️ Development Commands
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run setup-db     # Initialize database & seed data
-npm run lint         # Run ESLint
-```
-
-## 📊 Database Schema
-
-- **users**: User accounts (NextAuth)
-- **pets**: User's adopted pets with XP and evolution stage
-- **actions**: Care quests and micro-actions with embeddings
-- **checkins**: Emotional check-ins with AI analysis
-- **executions**: Completed actions with verification data
-- **category_weights**: User preference learning
-- **habitat_props**: Unlockable pet environment items
-
-## 🔒 Privacy & Safety
-
-- **No Image Storage**: Camera scans extract cues then discard images
-- **Crisis Detection**: Red flag monitoring with appropriate responses
-- **Content Moderation**: Rate limiting and harmful content filtering
-- **Data Minimization**: Only collect essential user data
-- **Secure Authentication**: Google OAuth with JWT sessions
+### Pet Management
+- `POST /api/pet` - Create new pet
+- `PUT /api/pet` - Update pet details
 
 ## 🎨 Design System
 
-- **Mobile-First**: Optimized for 360-430px widths
-- **Theme Colors**: CSS variables based on mood (green/yellow/blue/orange/violet/pink/rose)
-- **Accessibility**: High contrast, touch-friendly targets
-- **Animations**: Smooth transitions and pet celebrations
+### Colors
+- **Primary**: Green (#22c55e) - Growth and wellness
+- **Secondary**: Blue (#3b82f6) - Trust and calm
+- **Accent**: Purple (#8b5cf6) - Creativity and magic
+- **Background**: Light gradients for warmth
+
+### Typography
+- **Headings**: Bold, dark gray for hierarchy
+- **Body**: Regular weight, black for readability
+- **Captions**: Small, gray for secondary information
+
+### Components
+- **Cards**: Rounded corners, subtle shadows
+- **Buttons**: Gradient backgrounds, hover effects
+- **Inputs**: Clean borders, focus states
+- **Modals**: Overlay backgrounds, centered content
+
+## 🧠 AI Architecture
+
+### Analysis Pipeline
+1. **Input Processing**: Text, images, weather data
+2. **Vision Analysis**: Selfie and surroundings insights
+3. **Weather Analysis**: Outdoor/indoor suitability
+4. **Emotional Analysis**: Mood, energy, focus detection
+5. **Reflection Generation**: Personalized empathetic response
+
+### Recommendation Engine
+1. **Query Building**: Semantic search from user input
+2. **Vector Search**: Milvus similarity matching
+3. **Scoring Algorithm**: Multi-factor personalization
+4. **LLM Composition**: Creative adaptation of actions
+5. **Weather Integration**: Context-aware suggestions
+
+## 📊 Database Schema
+
+### Core Tables
+- `users` - User accounts and preferences
+- `pets` - Pet data and progression
+- `checkins` - Emotional check-in history
+- `actions` - Available Care Quests
+- `executions` - Completed actions
+- `category_weights` - User preference learning
+
+### Vector Collections (Milvus)
+- `content_vectors` - Action embeddings for semantic search
+- `user_memories` - User interaction history
 
 ## 🚀 Deployment
 
-### **Vercel (Recommended)**
+### Vercel (Recommended)
+1. Connect your GitHub repository
+2. Set environment variables
+3. Deploy automatically on push
 
-1. Connect your GitHub repo to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+### Environment Variables
+```env
+# Required
+POSTGRES_URL=
+OPENAI_API_KEY=
+NEXTAUTH_SECRET=
 
-### **Environment Variables for Production**
-
-```bash
-NEXTAUTH_URL="https://your-app.vercel.app"
-NEXTAUTH_SECRET="your-production-secret"
-# ... other variables from .env
+# Optional
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+MILVUS_URL=
+MILVUS_TOKEN=
 ```
 
 ## 🤝 Contributing
@@ -164,12 +290,20 @@ NEXTAUTH_SECRET="your-production-secret"
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Add tests if applicable
 5. Submit a pull request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- OpenAI for GPT-4o-mini and embeddings
+- Vercel for hosting and Postgres
+- Next.js for the framework
+- Tailwind CSS for styling
+- The AI NextGen hackathon community
 
 ---
 
