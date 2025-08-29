@@ -11,7 +11,8 @@
     "seed:milvus": "tsx scripts/seed-milvus.ts",
     "setup:vercel": "tsx scripts/setup-vercel-db.ts",
     "setup:db": "tsx scripts/setup-db-pg.ts",
-    "test:milvus": "tsx scripts/test-milvus.ts"
+    "test:milvus": "tsx scripts/test-milvus.ts",
+    "add:why": "tsx scripts/add-why-column.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

@@ -3,9 +3,13 @@ import { MilvusClient, DataType } from '@zilliz/milvus2-sdk-node'
 const DIM = 1536
 
 export function getMilvus() {
-  const url = process.env.MILVUS_URI!
-  const username = process.env.MILVUS_USER!
-  const password = process.env.MILVUS_PASSWORD!
+  const url = process.env.MILVUS_URI
+  const username = process.env.MILVUS_USER
+  const password = process.env.MILVUS_PASSWORD
+  
+  if (!url || !username || !password) {
+    throw new Error('Missing Milvus environment variables: MILVUS_URI, MILVUS_USER, MILVUS_PASSWORD')
+  }
   
   // Handle Zilliz Cloud serverless URLs
   let address = url
