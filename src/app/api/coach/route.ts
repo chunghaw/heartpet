@@ -7,12 +7,21 @@ export async function POST(req: NextRequest) {
   try {
     const input = await req.json()
     
+    // Get the base URL from the request
+    const baseUrl = new URL(req.url).origin
+    
     // Call analyze API
-    const a = await fetch(new URL('/api/analyze', req.url), { 
+    const analyzeResponse = await fetch(`${baseUrl}/api/analyze`, { 
       method: 'POST', 
       headers: { 'content-type': 'application/json' }, 
       body: JSON.stringify(input) 
-    }).then(r => r.json())
+    })
+    
+    if (!analyzeResponse.ok) {
+      throw new Error(`Analyze API failed: ${analyzeResponse.status}`)
+    }
+    
+    const a = await analyzeResponse.json()
     
     if (a.red_flags) {
       return NextResponse.json({ 
@@ -25,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Call recommend API
-    const r = await fetch(new URL('/api/recommend', req.url), { 
+    const recommendResponse = await fetch(`${baseUrl}/api/recommend`, { 
       method: 'POST', 
       headers: { 'content-type': 'application/json' }, 
       body: JSON.stringify({ 
@@ -36,7 +45,13 @@ export async function POST(req: NextRequest) {
         focus: a.focus, 
         cues: a.cues 
       }) 
-    }).then(r => r.json())
+    })
+    
+    if (!recommendResponse.ok) {
+      throw new Error(`Recommend API failed: ${recommendResponse.status}`)
+    }
+    
+    const r = await recommendResponse.json()
     
     return NextResponse.json({ 
       empathy: a.empathy, 

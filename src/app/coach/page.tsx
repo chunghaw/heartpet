@@ -77,7 +77,7 @@ function CoachPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h1 className="text-2xl font-bold text-center mb-6 text-black">
           Your Care Quest
         </h1>
         
@@ -87,14 +87,14 @@ function CoachPageContent() {
           
           {/* Empathy */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">💭 Reflection</h2>
-            <p className="text-gray-700 leading-relaxed">{response.empathy}</p>
+            <h2 className="text-lg font-semibold text-black mb-2">💭 Reflection</h2>
+            <p className="text-black leading-relaxed">{response.empathy}</p>
           </div>
           
           {/* Question */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">🤔 Question</h2>
-            <p className="text-gray-700 leading-relaxed">{response.question}</p>
+            <h2 className="text-lg font-semibold text-black mb-2">🤔 Question</h2>
+            <p className="text-black leading-relaxed">{response.question}</p>
           </div>
           
           {/* Action Suggestion */}
@@ -143,9 +143,9 @@ function CoachPageContent() {
           {/* Crisis Support */}
           {response.red_flags && (
             <div className="text-center text-gray-600">
-              <p className="mb-4">
-                Take care of yourself. Consider reaching out to someone you trust or a professional.
-              </p>
+                        <p className="mb-4 text-black">
+            Take care of yourself. Consider reaching out to someone you trust or a professional.
+          </p>
               <button
                 onClick={() => router.push('/')}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -159,7 +159,7 @@ function CoachPageContent() {
         {/* Debug Panel */}
         {debug && (
           <div className="mt-6 bg-gray-100 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-800 mb-2">🐛 Debug Info</h3>
+            <h3 className="font-semibold text-black mb-2">🐛 Debug Info</h3>
             <details className="text-sm">
               <summary className="cursor-pointer text-gray-600">Raw Response</summary>
               <pre className="mt-2 p-2 bg-gray-200 rounded text-xs overflow-auto">

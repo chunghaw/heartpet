@@ -80,14 +80,14 @@ export default function CheckInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h1 className="text-2xl font-bold text-center mb-6 text-black">
           How are you feeling?
         </h1>
         
         <div className="bg-white rounded-2xl p-6 shadow-lg">
           {/* Text Input */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Share your thoughts
             </label>
             <textarea
@@ -100,7 +100,7 @@ export default function CheckInPage() {
           
           {/* Emoji Slider */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Mood: {emoji === -2 ? '😢' : emoji === -1 ? '😕' : emoji === 0 ? '😐' : emoji === 1 ? '🙂' : '😊'}
             </label>
             <input
@@ -122,7 +122,7 @@ export default function CheckInPage() {
           
           {/* Camera Buttons */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Optional: Add context
             </label>
             <div className="flex gap-3">
@@ -184,9 +184,9 @@ export default function CheckInPage() {
               🌍 Use my location for weather
             </button>
             {weather && (
-              <div className="mt-2 text-sm text-gray-600">
-                Weather: {weather.temp_c}°C, {weather.precip ? 'Rainy' : 'Clear'}, {weather.daylight ? 'Day' : 'Night'}
-              </div>
+                          <div className="mt-2 text-sm text-black">
+              Weather: {weather.temp_c}°C, {weather.precip ? 'Rainy' : 'Clear'}, {weather.daylight ? 'Day' : 'Night'}
+            </div>
             )}
           </div>
           
