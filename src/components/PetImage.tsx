@@ -16,7 +16,7 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
       return '/pets/egg_classic_full.png'
     }
     
-    // Level 2+ shows the actual pet
+    // Level 2+ shows the actual pet (regardless of stage)
     switch (pet.species) {
       case 'doggo':
         return '/pets/dog-beagle-2.png'
@@ -24,6 +24,12 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
         return '/pets/cat-graywhite.png'
       case 'dragon':
         return '/pets/dragon.riv'
+      case 'pocket_dragon': // Handle legacy species name
+        return '/pets/dragon.riv'
+      case 'cloud_kitten': // Handle legacy species name
+        return '/pets/cat-graywhite.png'
+      case 'seedling_spirit': // Handle legacy species name
+        return '/pets/egg_classic_full.png'
       default:
         return '/pets/egg_classic_full.png'
     }
