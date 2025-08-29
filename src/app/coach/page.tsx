@@ -6,7 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import SafetyBanner from '@/components/SafetyBanner'
 
 interface CoachResponse {
-  empathy: string
+  selfie_insights?: string | null
+  surroundings_insights?: string | null
+  weather_insights?: string | null
+  reflection: string
   question: string
   red_flags: boolean
   crisisBanner?: boolean
@@ -87,10 +90,34 @@ function CoachPageContent() {
           {/* Crisis Banner */}
           {response.red_flags && <SafetyBanner />}
           
-          {/* Empathy */}
+          {/* Selfie Insights */}
+          {response.selfie_insights && (
+            <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <h2 className="text-lg font-semibold text-purple-800 mb-2">📸 What Your Selfie Tells Us</h2>
+              <p className="text-purple-700 leading-relaxed">{response.selfie_insights}</p>
+            </div>
+          )}
+          
+          {/* Surroundings Insights */}
+          {response.surroundings_insights && (
+            <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h2 className="text-lg font-semibold text-green-800 mb-2">🏠 What Your Surroundings Tell Us</h2>
+              <p className="text-green-700 leading-relaxed">{response.surroundings_insights}</p>
+            </div>
+          )}
+          
+          {/* Weather Insights */}
+          {response.weather_insights && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h2 className="text-lg font-semibold text-blue-800 mb-2">🌤️ What The Weather Tells Us</h2>
+              <p className="text-blue-700 leading-relaxed">{response.weather_insights}</p>
+            </div>
+          )}
+          
+          {/* Reflection */}
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-black mb-2">💭 Reflection</h2>
-            <p className="text-black leading-relaxed">{response.empathy}</p>
+            <p className="text-black leading-relaxed">{response.reflection}</p>
           </div>
           
           {/* Question */}

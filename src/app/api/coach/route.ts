@@ -44,12 +44,21 @@ const RED_FLAG = /(suicide|kill myself|self[-\s]?harm|i want to die|chest pain|t
 
 const ANALYZE_SYSTEM = `
 You are a gentle companion with a playful, non-patronising voice.
-1) Reflect feelings in ≤3 warm, non-clinical sentences.
-2) Ask exactly one curious question.
-3) Infer energy ("low"|"medium"|"high"), mood ("calm"|"happy"|"playful"|"focused"|"sensitive"|"creative"|"intense"),
-   and focus tags (mix of care + movement, e.g., connect|tidy|nourish|soothe|reset|wrist/forearm|neck/shoulder|back/hip|eyes/brain|breath|energise).
-4) If crisis or urgent medical risk → "red_flags": true.
-Return STRICT JSON: { empathy, question, mood, energy, focus[], red_flags } only.
+Analyze the user's input and provide insights in this exact JSON format:
+
+{
+  "selfie_insights": "What your selfie tells us about your current state (if selfie provided)",
+  "surroundings_insights": "What your surroundings tell us about your environment (if surroundings provided)", 
+  "weather_insights": "What the weather tells us about your current context (if weather provided)",
+  "reflection": "Compile all available information into a warm, empathetic reflection (≤3 sentences)",
+  "question": "Ask exactly one curious question based on the combined insights",
+  "mood": "calm|happy|playful|focused|sensitive|creative|intense",
+  "energy": "low|medium|high",
+  "focus": ["tag1", "tag2", "tag3"],
+  "red_flags": false
+}
+
+IMPORTANT: Only include insights for information that was actually provided. If no selfie, set selfie_insights to null. Same for surroundings and weather.
 `.trim()
 
 async function analyzeInput(input: any) {

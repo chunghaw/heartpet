@@ -150,7 +150,7 @@ export default function CheckInPage() {
           {/* Camera Buttons */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-black mb-2">
-              Optional: Add context
+              Optional: Add context (you can add both!)
             </label>
             <div className="flex gap-3">
               <button
@@ -158,46 +158,62 @@ export default function CheckInPage() {
                   setCameraFacing('user')
                   setCameraOpen(true)
                 }}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black font-medium"
+                className={`flex-1 py-2 px-4 border rounded-lg transition-colors text-black font-medium ${
+                  imageSelfie 
+                    ? 'bg-green-100 border-green-300 text-green-700' 
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
               >
-                📸 Selfie
+                {imageSelfie ? '✅ Selfie' : '📸 Selfie'}
               </button>
               <button
                 onClick={() => {
                   setCameraFacing('environment')
                   setCameraOpen(true)
                 }}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black font-medium"
+                className={`flex-1 py-2 px-4 border rounded-lg transition-colors text-black font-medium ${
+                  imageEnv 
+                    ? 'bg-green-100 border-green-300 text-green-700' 
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
               >
-                🏠 Surroundings
+                {imageEnv ? '✅ Surroundings' : '🏠 Surroundings'}
               </button>
             </div>
             
             {/* Image Previews */}
             {(imageSelfie || imageEnv) && (
-              <div className="mt-3 flex gap-2">
-                {imageSelfie && (
-                  <div className="relative">
-                    <img src={imageSelfie} alt="Selfie" className="w-16 h-16 object-cover rounded-lg" />
-                    <button
-                      onClick={() => setImageSelfie('')}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-                {imageEnv && (
-                  <div className="relative">
-                    <img src={imageEnv} alt="Environment" className="w-16 h-16 object-cover rounded-lg" />
-                    <button
-                      onClick={() => setImageEnv('')}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
+              <div className="mt-3">
+                <p className="text-xs text-gray-600 mb-2">Your context images:</p>
+                <div className="flex gap-2">
+                  {imageSelfie && (
+                    <div className="relative">
+                      <img src={imageSelfie} alt="Selfie" className="w-16 h-16 object-cover rounded-lg border-2 border-green-300" />
+                      <button
+                        onClick={() => setImageSelfie('')}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
+                        title="Remove selfie"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  {imageEnv && (
+                    <div className="relative">
+                      <img src={imageEnv} alt="Environment" className="w-16 h-16 object-cover rounded-lg border-2 border-green-300" />
+                      <button
+                        onClick={() => setImageEnv('')}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
+                        title="Remove surroundings"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  💡 These images help us understand your context better and provide more personalized care quests!
+                </p>
               </div>
             )}
           </div>
