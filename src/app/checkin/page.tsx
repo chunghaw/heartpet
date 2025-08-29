@@ -105,6 +105,9 @@ export default function CheckInPage() {
       // Store in sessionStorage for coach page
       sessionStorage.setItem('coachResponse', JSON.stringify(data))
       
+      // Store original check-in data for reset functionality
+      sessionStorage.setItem('checkinData', JSON.stringify(payload))
+      
       // Navigate to coach page
       router.push('/coach')
     } catch (error) {

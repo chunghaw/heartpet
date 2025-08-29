@@ -179,7 +179,7 @@ function CoachPageContent() {
               <button
                 onClick={async () => {
                   const userAnswer = sessionStorage.getItem('userAnswer') || '';
-                  const originalData = sessionStorage.getItem('coachData');
+                  const originalData = sessionStorage.getItem('checkinData');
                   if (originalData) {
                     const data = JSON.parse(originalData);
                     
@@ -201,10 +201,14 @@ function CoachPageContent() {
                         const newData = await response.json();
                         sessionStorage.setItem('coachResponse', JSON.stringify(newData));
                         window.location.reload(); // Refresh to show new quest
+                      } else {
+                        console.error('Reset failed:', response.status, response.statusText);
                       }
                     } catch (error) {
                       console.error('Reset failed:', error);
                     }
+                  } else {
+                    console.error('No checkin data found for reset');
                   }
                 }}
                 className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition-colors"
