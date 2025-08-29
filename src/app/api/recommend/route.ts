@@ -3,12 +3,12 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import OpenAI from 'openai'
 import { sql } from '@vercel/postgres'
-import { searchTopK } from '@/lib/milvus'
+import OpenAI from 'openai'
 import { weatherAffinity } from '@/lib/weather-affinity'
 import { buildQuery } from '@/lib/query'
 import { COMPOSE_ACTION_SYSTEM } from '@/lib/prompts'
+import { searchActions, isMilvusAvailable } from '@/lib/milvus'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -17,43 +17,48 @@ const Body = z.object({
   text: z.string(),
   mood: z.string(),
   energy: z.enum(['low', 'medium', 'high']),
-  focus: z.array(z.string()).min(1),
+  focus: z.array(z.string()),
   cues: z.record(z.any()).optional()
 })
-
-function fitEnergy(a: 'low' | 'medium' | 'high', b: 'low' | 'medium' | 'high') {
-  if (a === b) return 1
-  if ((a === 'low' && b === 'medium') || (a === 'medium' && (b === 'low' || b === 'high')) || (a === 'high' && b === 'medium')) return 0.5
-  return 0
-}
 
 export async function POST(req: NextRequest) {
   try {
     const body = Body.parse(await req.json())
     
-    const q = buildQuery({
-      text: body.text,
-      mood: body.mood,
-      energy: body.energy,
-      focus: body.focus,
-      cues: body.cues || {}
+    // Build query string for embedding
+    const q = buildQuery({ 
+      text: body.text, 
+      mood: body.mood, 
+      energy: body.energy, 
+      focus: body.focus, 
+      cues: body.cues || {} 
     })
-    const emb = await openai.embeddings.create({ 
-      model: 'text-embedding-3-small', 
-      input: q 
+    
+    // Generate embedding
+    const embedding = await openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: q
     })
-    const vec = emb.data[0].embedding
-
-    // Milvus search
+    
+    const vec = embedding.data[0].embedding
+    
+    // Try Milvus first, fallback to Postgres
     let candidates: Array<{ action_id: string; category: string; score: number }> = []
-    try { 
-      candidates = await searchTopK(vec, 8) 
-    } catch (e) { 
-      console.log('Milvus search failed, falling back to Postgres:', e)
+    
+    if (isMilvusAvailable()) {
+      try {
+        console.log('🔍 Using Milvus for vector search...')
+        candidates = await searchActions(vec, 8)
+        console.log(`✅ Milvus returned ${candidates.length} candidates`)
+      } catch (error) {
+        console.log('⚠️ Milvus failed, falling back to Postgres:', error)
+        candidates = []
+      }
     }
-
+    
     // Fallback: brute force cosine in Postgres on small dataset
     if (!candidates.length) {
+      console.log('🔄 Using Postgres fallback for vector search...')
       const { rows } = await sql`select id as action_id, category, embedding from actions where embedding is not null`
       
       function cosine(a: number[], b: any) {
@@ -76,63 +81,82 @@ export async function POST(req: NextRequest) {
       }))
       candidates.sort((a, b) => b.score - a.score)
       candidates = candidates.slice(0, 8)
+      console.log(`✅ Postgres fallback returned ${candidates.length} candidates`)
     }
-
-    // Personal weights
-    const wRows = await sql`select category, weight from category_weights where user_id = ${body.userId}`
-    const wMap = new Map(wRows.rows.map((r: any) => [r.category, Number(r.weight)]))
-
-    // Novelty: count in last 5 executions
-    const recent = await sql`
-      select action_id, count(*)::int as n 
-      from executions 
-      where user_id=${body.userId} 
-      group by action_id
-      order by max(created_at) desc
-      limit 5
+    
+    if (!candidates.length) {
+      return NextResponse.json({ error: 'no_actions_found' }, { status: 404 })
+    }
+    
+    // Get full action details from Postgres
+    const actionIds = candidates.map(c => c.action_id)
+    const { rows: actions } = await sql`
+      SELECT id, title, steps, seconds, category, tags, why
+      FROM actions 
+      WHERE id = ANY(${actionIds})
     `
-    const recentMap = new Map(recent.rows.map((r: any) => [r.action_id, r.n]))
-
-    // Fetch actions
-    const ids = candidates.map(c => c.action_id)
-    const data = await sql`select id, title, steps, seconds, category, why from actions where id = any(${ids})`
-
-    const scored = data.rows.map((row: any) => {
-      const c = candidates.find(x => x.action_id === row.id)!
-      const tags: string[] = row.tags || []
-      const weight = wMap.get(row.category) ?? 1
-      const fit = fitEnergy(body.energy, body.energy as any) // simple for now; can tag actions later
-      const nov = 1 - Math.min(1, (recentMap.get(row.id) ?? 0) / 2)
+    
+    // Create lookup map
+    const actionMap = new Map(actions.map(a => [a.id, a]))
+    
+    // Score and rank actions
+    const scored = candidates.map(c => {
+      const action = actionMap.get(c.action_id)
+      if (!action) return null
+      
+      const tags: string[] = action.tags || []
       const waff = weatherAffinity(tags, body.cues)
       
-      const final = 0.65 * c.score + 0.25 * weight + 0.07 * fit + 0.03 * nov + waff
-      return { ...row, cos: c.score, weight, fit_energy: fit, novelty: nov, weather_affinity: +waff.toFixed(3), final }
-    }).sort((a, b) => b.final - a.final)
-
+      // Scoring weights
+      const cos = c.score
+      const weight = 1.0 // Default category weight
+      const fit = body.energy === 'low' ? 1 : body.energy === 'medium' ? 0.5 : 0
+      const nov = 0.9 // Default novelty
+      
+      const final = 0.65 * cos + 0.25 * weight + 0.07 * fit + 0.03 * nov + waff
+      
+      return { 
+        ...action, 
+        cos, 
+        weight, 
+        fit_energy: fit, 
+        novelty: nov, 
+        weather_affinity: +waff.toFixed(3), 
+        final 
+      }
+    }).filter(Boolean).sort((a, b) => b.final - a.final)
+    
+    if (!scored.length) {
+      return NextResponse.json({ error: 'no_actions_found' }, { status: 404 })
+    }
+    
     const best = scored[0]
     
     // Compose creative variant based on context
-    let composed = { title: best.title, steps: best.steps, seconds: best.seconds };
+    let composed = { title: best.title, steps: best.steps, seconds: best.seconds }
+    
     try {
       const composeInput = {
-        base: { title: best.title, steps: best.steps, seconds: best.seconds, tags: best.tags, why: best.why, category: best.category },
-        cues: body.cues, mood: body.mood, energy: body.energy, text: body.text
-      };
+        base_action: best.title,
+        base_steps: best.steps,
+        context: `User feeling: ${body.mood}, energy: ${body.energy}, focus: ${body.focus.join(', ')}`,
+        weather: body.cues
+      }
       
       const comp = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        temperature: 0.6,
+        model: 'gpt-4o-mini',
+        temperature: 0.8,
         messages: [
-          { role: "system", content: COMPOSE_ACTION_SYSTEM },
-          { role: "user", content: JSON.stringify(composeInput) }
+          { role: 'system', content: COMPOSE_ACTION_SYSTEM },
+          { role: 'user', content: JSON.stringify(composeInput) }
         ]
-      });
+      })
       
       try { 
-        composed = JSON.parse(comp.choices[0]?.message?.content || "{}"); 
+        composed = JSON.parse(comp.choices[0]?.message?.content || "{}") 
       } catch {} 
-    } catch (error) {
-      console.log('Composition failed, using base action:', error);
+    } catch (error) { 
+      console.log('Composition failed, using base action:', error) 
     }
     
     return NextResponse.json({
@@ -143,14 +167,15 @@ export async function POST(req: NextRequest) {
       category: best.category,
       tags: best.tags,
       why: best.why,
-      explain: { 
-        cos: +best.cos.toFixed(3), 
-        weight: +best.weight.toFixed(2), 
-        fit_energy: best.fit_energy, 
-        novelty: +best.novelty.toFixed(2),
+      explain: {
+        cos: +best.cos.toFixed(3),
+        weight: +best.weight.toFixed(3),
+        fit_energy: +best.fit_energy.toFixed(3),
+        novelty: +best.novelty.toFixed(3),
         weather_affinity: best.weather_affinity
       }
     })
+    
   } catch (error) {
     console.error('Recommend API error:', error)
     return NextResponse.json({ error: 'bad_request' }, { status: 400 })
