@@ -138,7 +138,7 @@ export default function CheckInPage() {
               onChange={(e) => setEmoji(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-B) With selfie (valid data URL), no env image, no weatherB) With selfie (valid data URL), no env image, no weather            <div className="flex justify-between text-xs text-black mt-1">
+            <div className="flex justify-between text-xs text-black mt-1">
               <span>😢</span>
               <span>😕</span>
               <span>😐</span>

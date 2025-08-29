@@ -97,6 +97,24 @@ function CoachPageContent() {
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-black mb-2">🤔 Question</h2>
             <p className="text-black leading-relaxed">{response.question}</p>
+            
+            {/* User Input Field */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Answer (optional):
+              </label>
+              <textarea
+                placeholder="Share your thoughts..."
+                className="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-600"
+                onChange={(e) => {
+                  // Store user's answer for potential future use
+                  sessionStorage.setItem('userAnswer', e.target.value);
+                }}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This helps us personalize future recommendations
+              </p>
+            </div>
           </div>
           
           {/* Action Suggestion */}

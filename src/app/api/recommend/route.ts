@@ -99,6 +99,17 @@ export async function POST(req: NextRequest) {
     // Create lookup map
     const actionMap = new Map(actions.map(a => [a.id, a]))
     
+    // Get user's recent executions for novelty scoring
+    const recentExecutions = await sql`
+      SELECT action_id, COUNT(*) as times_done
+      FROM executions 
+      WHERE user_id = ${body.userId} 
+      AND created_at > NOW() - INTERVAL '7 days'
+      GROUP BY action_id
+    `
+    
+    const recentMap = new Map(recentExecutions.rows.map((r: any) => [r.action_id, r.times_done]))
+    
     // Score and rank actions
     const scored = candidates.map(c => {
       const action = actionMap.get(c.action_id)
@@ -107,11 +118,14 @@ export async function POST(req: NextRequest) {
       const tags: string[] = action.tags || []
       const waff = weatherAffinity(tags, body.cues)
       
-      // Scoring weights
+      // Scoring weights with proper novelty
       const cos = c.score
       const weight = 1.0 // Default category weight
       const fit = body.energy === 'low' ? 1 : body.energy === 'medium' ? 0.5 : 0
-      const nov = 0.9 // Default novelty
+      
+      // Novelty: penalize recently done actions
+      const timesDone = recentMap.get(action.id) || 0
+      const nov = Math.max(0.1, 1 - (timesDone * 0.3)) // Reduce novelty for repeated actions
       
       const final = 0.65 * cos + 0.25 * weight + 0.07 * fit + 0.03 * nov + waff
       
@@ -120,7 +134,7 @@ export async function POST(req: NextRequest) {
         cos, 
         weight, 
         fit_energy: fit, 
-        novelty: nov, 
+        novelty: +nov.toFixed(3), 
         weather_affinity: +waff.toFixed(3), 
         final 
       }

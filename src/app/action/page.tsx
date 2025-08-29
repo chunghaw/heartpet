@@ -206,6 +206,25 @@ export default function ActionPage() {
                 style={{ width: `${((action.seconds - timeLeft) / action.seconds) * 100}%` }}
               ></div>
             </div>
+            
+            {/* Quick Complete Button */}
+            {isActive && timeLeft > 10 && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={() => {
+                    setTimeLeft(0);
+                    setIsActive(false);
+                    setShowHold(true);
+                  }}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition-colors"
+                >
+                  ⚡ Complete Early
+                </button>
+                <p className="text-xs text-gray-500 mt-1">
+                  Skip the wait and complete now
+                </p>
+              </div>
+            )}
           </div>
           
           {/* Steps */}
