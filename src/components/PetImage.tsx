@@ -52,11 +52,14 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
   const isRive = imageSrc.endsWith('.riv')
 
   if (isRive) {
-    // For Rive files, we'll use a placeholder for now
-    // TODO: Implement Rive player
+    // For Rive files, display the actual file
     return (
-      <div className={`${getSizeClasses()} bg-green-100 rounded-full flex items-center justify-center ${className}`}>
-        <span className="text-green-600 font-bold text-xs">🐉</span>
+      <div className={`${getSizeClasses()} relative ${className}`}>
+        <img
+          src={imageSrc}
+          alt={`${pet.name} the ${pet.species}`}
+          className="rounded-full object-cover w-full h-full"
+        />
       </div>
     )
   }
