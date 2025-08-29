@@ -42,17 +42,44 @@ export default function CheckInPage() {
     setLoading(true)
     
     try {
+      // Build payload - only include fields that have actual values
+      const payload: any = {
+        userId: session.user.id,
+        text: text.trim(),
+      };
+
+      // Only include emoji if it's not 0 (neutral)
+      if (emoji !== 0) {
+        payload.emoji = emoji;
+      }
+
+      // Only include images if they're valid data URLs
+      if (imageSelfie && imageSelfie.startsWith('data:image')) {
+        payload.imageSelfie = imageSelfie;
+      }
+      if (imageEnv && imageEnv.startsWith('data:image')) {
+        payload.imageEnv = imageEnv;
+      }
+
+      // Only include weather if it has actual data
+      if (weather && typeof weather === 'object' && Object.keys(weather).length > 0) {
+        payload.weather = {
+          temp_c: weather.temp_c,
+          precip: !!weather.precip,
+          daylight: !!weather.daylight,
+          weather: weather.weather,
+          good_outdoor_brief: !!weather.good_outdoor_brief,
+          good_outdoor_sheltered: !!weather.good_outdoor_sheltered,
+          good_window_nature: !!weather.good_window_nature,
+        };
+      }
+
+      console.log('📤 Sending payload to Coach API:', payload);
+
       const response = await fetch('/api/coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: session.user.id,
-          text: text.trim(),
-          emoji,
-          imageSelfie,
-          imageEnv,
-          weather
-        })
+        body: JSON.stringify(payload)
       })
       
       const data = await response.json()
@@ -111,7 +138,7 @@ export default function CheckInPage() {
               onChange={(e) => setEmoji(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-black mt-1">
+B) With selfie (valid data URL), no env image, no weatherB) With selfie (valid data URL), no env image, no weather            <div className="flex justify-between text-xs text-black mt-1">
               <span>😢</span>
               <span>😕</span>
               <span>😐</span>

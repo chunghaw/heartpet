@@ -1,3 +1,5 @@
+
+
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
@@ -7,18 +9,36 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-// Copy the analyze logic directly here to avoid internal HTTP calls
+// More tolerant schema that handles empty strings and null values
+const ImageDataUrl = z.union([
+  z.string().startsWith("data:image"), // valid data URL
+  z.string().length(0),                 // tolerate "" if client sends it
+]).optional().nullable();
+
+const WeatherObj = z.object({
+  temp_c: z.number().optional(),
+  precip: z.boolean().optional(),
+  daylight: z.boolean().optional(),
+  weather: z.string().optional(),
+  good_outdoor_brief: z.boolean().optional(),
+  good_outdoor_sheltered: z.boolean().optional(),
+  good_window_nature: z.boolean().optional(),
+}).optional().nullable();
+
 const Body = z.object({
+  userId: z.string(),
   text: z.string().min(1),
   emoji: z.number().int().min(-2).max(2).optional(),
-  imageSelfie: z.string().startsWith('data:image').max(300_000).optional(),
-  imageEnv: z.string().startsWith('data:image').max(300_000).optional(),
-  weather: z.object({ 
-    temp_c: z.number().optional(), 
-    precip: z.boolean().optional(), 
-    daylight: z.boolean().optional() 
-  }).optional()
-})
+  imageSelfie: ImageDataUrl,
+  imageEnv: ImageDataUrl,
+  weather: WeatherObj,
+}).transform((b) => ({
+  ...b,
+  // Normalize empty strings and null to undefined
+  imageSelfie: (b.imageSelfie && b.imageSelfie.startsWith?.("data:image")) ? b.imageSelfie : undefined,
+  imageEnv: (b.imageEnv && b.imageEnv.startsWith?.("data:image")) ? b.imageEnv : undefined,
+  weather: b.weather ?? undefined,
+}));
 
 const RED_FLAG = /(suicide|kill myself|self[-\s]?harm|i want to die|chest pain|tight chest with pain|loss of (bladder|bowel))/i
 
@@ -34,20 +54,20 @@ Return STRICT JSON: { empathy, question, mood, energy, focus[], red_flags } only
 
 async function analyzeInput(input: any) {
   try {
+    console.log('🔍 Analyzing input:', JSON.stringify(input, null, 2));
+    
     const body = Body.parse(input)
+    console.log('✅ Parsed body:', JSON.stringify(body, null, 2));
+    
     const preFlag = RED_FLAG.test(body.text)
+    console.log('🚩 Pre-flag check:', preFlag);
     
     // Simple cues extraction (no vision for now)
     const cues = { ...(body.weather || {}) }
-    
-    // Add basic weather cues
-    if (body.weather) {
-      cues.temp_c = body.weather.temp_c;
-      cues.precip = body.weather.precip;
-      cues.daylight = body.weather.daylight;
-    }
+    console.log('🌤️ Weather cues:', cues);
 
     const prompt = `User says: "${body.text}"\n\nAnalyze this and respond with the JSON format specified.`
+    console.log('📝 Sending prompt to OpenAI:', prompt);
     
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -58,10 +78,18 @@ async function analyzeInput(input: any) {
       ]
     })
     
+    console.log('🤖 OpenAI response:', response.choices[0]?.message?.content);
+    
     try {
       const result = JSON.parse(response.choices[0]?.message?.content || '{}')
-      return { ...result, cues, red_flags: preFlag || result.red_flags }
-    } catch {
+      console.log('✅ Parsed OpenAI result:', result);
+      
+      const finalResult = { ...result, cues, red_flags: preFlag || result.red_flags }
+      console.log('🎯 Final analysis result:', finalResult);
+      
+      return finalResult;
+    } catch (parseError) {
+      console.log('⚠️ OpenAI response parse failed, using fallback:', parseError);
       // Fallback response
       return {
         empathy: "I hear you're going through something challenging. It's okay to feel this way.",
@@ -74,7 +102,7 @@ async function analyzeInput(input: any) {
       }
     }
   } catch (error) {
-    console.error('Analyze failed:', error)
+    console.error('❌ Analyze failed:', error)
     throw error
   }
 }
@@ -82,9 +110,11 @@ async function analyzeInput(input: any) {
 // Simple recommend function (Postgres fallback)
 async function recommendAction(input: any) {
   try {
+    console.log('🎯 Recommending action for input:', JSON.stringify(input, null, 2));
+    
     // For now, return a simple action from the database
     // This will be enhanced later with proper vector search
-    return {
+    const recommendation = {
       action_id: "simple_breathing",
       title: "Take 3 deep breaths",
       steps: [
@@ -103,21 +133,30 @@ async function recommendAction(input: any) {
         novelty: 0.9,
         weather_affinity: 0.0
       }
-    }
+    };
+    
+    console.log('✅ Recommendation:', recommendation);
+    return recommendation;
   } catch (error) {
-    console.error('Recommend failed:', error)
+    console.error('❌ Recommend failed:', error)
     throw error
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('🚀 Coach API called');
+    
     const input = await req.json()
+    console.log('📥 Received input:', JSON.stringify(input, null, 2));
     
     // Direct function calls instead of HTTP requests
+    console.log('🔍 Calling analyzeInput...');
     const analysis = await analyzeInput(input)
+    console.log('✅ Analysis complete:', JSON.stringify(analysis, null, 2));
     
     if (analysis.red_flags) {
+      console.log('🚩 Red flags detected, returning crisis response');
       return NextResponse.json({ 
         empathy: analysis.empathy, 
         question: analysis.question, 
@@ -127,6 +166,7 @@ export async function POST(req: NextRequest) {
       })
     }
     
+    console.log('🎯 Calling recommendAction...');
     const recommendation = await recommendAction({
       userId: input.userId, 
       text: input.text, 
@@ -135,16 +175,35 @@ export async function POST(req: NextRequest) {
       focus: analysis.focus, 
       cues: analysis.cues 
     })
+    console.log('✅ Recommendation complete:', JSON.stringify(recommendation, null, 2));
     
-    return NextResponse.json({ 
+    const finalResponse = { 
       empathy: analysis.empathy, 
       question: analysis.question, 
       red_flags: false, 
       micro_action: recommendation, 
       cues: analysis.cues 
-    })
+    };
+    
+    console.log('🎉 Final response:', JSON.stringify(finalResponse, null, 2));
+    return NextResponse.json(finalResponse)
+    
   } catch (error) {
-    console.error('Coach API error:', error)
-    return NextResponse.json({ error: 'bad_request' }, { status: 400 })
+    console.error('💥 Coach API error:', error)
+    
+    // Return detailed error for debugging
+    if (error instanceof z.ZodError) {
+      console.error('🔍 Zod validation errors:', error.issues);
+      return NextResponse.json({ 
+        error: 'validation_failed', 
+        details: error.issues,
+        message: 'Invalid input data format'
+      }, { status: 400 })
+    }
+    
+    return NextResponse.json({ 
+      error: 'internal_error', 
+      message: (error as Error)?.message || 'Unknown error occurred'
+    }, { status: 500 })
   }
 }
