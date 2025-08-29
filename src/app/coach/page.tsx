@@ -173,9 +173,49 @@ function CoachPageContent() {
                 This helps us personalize future recommendations
               </p>
             </div>
-
-            {/* Reset Quest Button */}
-            <div className="mt-4 text-center">
+          </div>
+          
+          {/* Action Suggestion */}
+          {!response.red_flags && response.micro_action && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h2 className="text-lg font-semibold text-blue-800 mb-2">
+                🎯 Your Micro-Action
+              </h2>
+              <h3 className="font-medium text-blue-900 mb-2">
+                {response.micro_action.title}
+              </h3>
+              <p className="text-blue-800 text-sm mb-3">
+                {response.micro_action.why}
+              </p>
+              <div className="text-xs text-blue-600 mb-3">
+                <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
+                  {response.micro_action.category}
+                </span>
+                <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
+                  {response.micro_action.seconds}s
+                </span>
+                {response.micro_action.tags && response.micro_action.tags.length > 0 && (
+                  <span className="inline-block bg-green-200 px-2 py-1 rounded">
+                    {response.micro_action.tags.slice(0, 2).join(', ')}
+                  </span>
+                )}
+              </div>
+              <ol className="text-sm text-blue-800 space-y-1">
+                {response.micro_action.steps.map((step, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">
+                      {index + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+          
+          {/* Reset Quest Button */}
+          {!response.red_flags && response.micro_action && (
+            <div className="mb-4 text-center">
               <button
                 onClick={async () => {
                   const userAnswer = sessionStorage.getItem('userAnswer') || '';
@@ -218,44 +258,6 @@ function CoachPageContent() {
               <p className="text-xs text-gray-500 mt-1">
                 Get a different suggestion based on your feedback
               </p>
-            </div>
-          </div>
-          
-          {/* Action Suggestion */}
-          {!response.red_flags && response.micro_action && (
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h2 className="text-lg font-semibold text-blue-800 mb-2">
-                🎯 Your Micro-Action
-              </h2>
-              <h3 className="font-medium text-blue-900 mb-2">
-                {response.micro_action.title}
-              </h3>
-              <p className="text-blue-800 text-sm mb-3">
-                {response.micro_action.why}
-              </p>
-              <div className="text-xs text-blue-600 mb-3">
-                <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
-                  {response.micro_action.category}
-                </span>
-                <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
-                  {response.micro_action.seconds}s
-                </span>
-                {response.micro_action.tags && response.micro_action.tags.length > 0 && (
-                  <span className="inline-block bg-green-200 px-2 py-1 rounded">
-                    {response.micro_action.tags.slice(0, 2).join(', ')}
-                  </span>
-                )}
-              </div>
-              <ol className="text-sm text-blue-800 space-y-1">
-                {response.micro_action.steps.map((step, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">
-                      {index + 1}
-                    </span>
-                    {step}
-                  </li>
-                ))}
-              </ol>
             </div>
           )}
           
