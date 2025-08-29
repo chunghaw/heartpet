@@ -23,9 +23,9 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
       case 'kitten':
         return '/pets/cat-graywhite.png'
       case 'dragon':
-        return '/pets/dragon-simple.svg'
+        return '/pets/dragon_red.PNG'
       case 'pocket_dragon': // Handle legacy species name
-        return '/pets/dragon-simple.svg'
+        return '/pets/dragon_red.PNG'
       case 'cloud_kitten': // Handle legacy species name
         return '/pets/cat-graywhite.png'
       case 'seedling_spirit': // Handle legacy species name
