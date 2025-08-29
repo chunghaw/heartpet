@@ -125,37 +125,12 @@ Analyze this information and respond with the JSON format specified.`
   }
 }
 
-// Enhanced recommend function with proper weather affinity
+// Enhanced recommend function with weather-aware database lookup
 async function recommendAction(input: any) {
   try {
     console.log('🎯 Recommending action for input:', JSON.stringify(input, null, 2));
     
-    // Use the proper recommend API with weather affinity
-    const recommendResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/recommend`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: input.userId,
-        text: input.text,
-        mood: input.mood,
-        energy: input.energy,
-        focus: input.focus,
-        cues: input.cues
-      })
-    });
-    
-    if (!recommendResponse.ok) {
-      throw new Error(`Recommend API failed: ${recommendResponse.status}`);
-    }
-    
-    const recommendation = await recommendResponse.json();
-    console.log('✅ Recommendation from API:', recommendation);
-    
-    return recommendation;
-  } catch (error) {
-    console.error('❌ Recommend failed:', error);
-    
-    // Fallback to simple database lookup if recommend API fails
+    // Use direct database lookup with weather consideration
     const { sql } = await import('@vercel/postgres');
     
     // Check if user wants to avoid breathing exercises
@@ -229,6 +204,9 @@ async function recommendAction(input: any) {
     }
     
     throw new Error('No actions found in database');
+  } catch (error) {
+    console.error('❌ Recommend failed:', error)
+    throw error;
   }
 }
 
