@@ -132,7 +132,7 @@ async function addMoreActions() {
       
       const embeddingArray = embedding.data[0].embedding;
       
-      // Insert action with tags
+      // Insert action with tags (steps as JSON)
       await client.query(`
         INSERT INTO actions (title, steps, seconds, category, why, tags, embedding)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -143,7 +143,7 @@ async function addMoreActions() {
           why = EXCLUDED.why,
           tags = EXCLUDED.tags,
           embedding = EXCLUDED.embedding
-      `, [action.title, action.steps, action.seconds, action.category, action.why, action.tags, JSON.stringify(embeddingArray)]);
+      `, [action.title, JSON.stringify(action.steps), action.seconds, action.category, action.why, action.tags, JSON.stringify(embeddingArray)]);
       
       console.log(`✅ Added: ${action.title}`);
     }
