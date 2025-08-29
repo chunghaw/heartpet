@@ -15,6 +15,8 @@ export interface Pet {
   breed?: string;
   stage: 'egg' | 'hatchling' | 'sproutling' | 'floof';
   xp: number;
+  level?: number;
+  xpForNext?: number;
   created_at: Date;
 }
 

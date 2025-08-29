@@ -11,7 +11,9 @@ interface CompletionData {
     category: string
   }
   xp: number
+  newLevel?: number
   newStage?: string
+  xpForNext?: number
 }
 
 export default function CompletionPage() {
@@ -112,9 +114,19 @@ export default function CompletionPage() {
             <div className="text-sm text-yellow-700">
               Total: {completionData.xp} XP
             </div>
-            {completionData.newStage && (
+            {completionData.newLevel && (
               <div className="mt-2 text-sm text-yellow-700 font-medium">
-                🆕 New stage: {completionData.newStage}!
+                🆕 Level Up! You're now Level {completionData.newLevel}!
+              </div>
+            )}
+            {completionData.newStage && (
+              <div className="mt-1 text-sm text-yellow-700 font-medium">
+                🐾 New stage: {completionData.newStage}!
+              </div>
+            )}
+            {completionData.xpForNext && (
+              <div className="mt-1 text-xs text-yellow-600">
+                Next level: {completionData.xpForNext} XP needed
               </div>
             )}
           </div>

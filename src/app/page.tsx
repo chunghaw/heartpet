@@ -210,21 +210,19 @@ export default function Home() {
               </div>
               
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{pet.name}</h2>
-              <p className="text-gray-600 mb-4 capitalize">{pet.stage} • {pet.species.replace('_', ' ')}</p>
+              <p className="text-gray-600 mb-4 capitalize">Level {pet.level || 1} • {pet.stage} • {pet.species.replace('_', ' ')}</p>
               
               {/* XP Progress */}
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
                   <span>XP: {pet.xp}</span>
-                  <span>Next: {pet.stage === 'egg' ? 50 : pet.stage === 'hatchling' ? 100 : pet.stage === 'sproutling' ? 150 : 'Max'}</span>
+                  <span>Next: {pet.xpForNext || 10}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-green-500 h-2 rounded-full transition-all duration-500"
                     style={{ 
-                      width: `${pet.stage === 'egg' ? (pet.xp / 50) * 100 : 
-                              pet.stage === 'hatchling' ? (pet.xp - 50) / 50 * 100 :
-                              pet.stage === 'sproutling' ? (pet.xp - 100) / 50 * 100 : 100}%` 
+                      width: `${Math.min(100, (pet.xp % (pet.xpForNext || 10)) / (pet.xpForNext || 10) * 100)}%` 
                     }}
                   ></div>
                 </div>
