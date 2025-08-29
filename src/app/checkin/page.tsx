@@ -94,6 +94,18 @@ export default function CheckInPage() {
 
       console.log('📤 Sending payload to Coach API:', payload);
 
+      // First, save the check-in to database
+      const checkinResponse = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!checkinResponse.ok) {
+        console.error('Failed to save check-in:', await checkinResponse.text())
+      }
+
+      // Then, get the coach response
       const response = await fetch('/api/coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -24,7 +24,8 @@
     "debug:llm": "tsx scripts/debug-llm-process.ts",
     "remove:breaths": "tsx scripts/remove-deep-breaths.ts",
     "add:user:actions": "tsx scripts/add-user-actions.ts",
-    "update:pet:species": "tsx scripts/update-pet-species.ts"
+    "update:pet:species": "tsx scripts/update-pet-species.ts",
+    "check:db:schema": "tsx scripts/check-database-schema.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

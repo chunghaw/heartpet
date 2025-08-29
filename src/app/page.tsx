@@ -18,6 +18,10 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState('');
+  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
+  const [quickCheckinText, setQuickCheckinText] = useState('');
+  const [quickCheckinEmoji, setQuickCheckinEmoji] = useState(0);
+  const [quickCheckinLoading, setQuickCheckinLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -63,6 +67,39 @@ export default function Home() {
       console.error('Failed to fetch pet:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuickCheckin = async () => {
+    if (!quickCheckinText.trim()) {
+      alert('Please share how you\'re feeling');
+      return;
+    }
+
+    setQuickCheckinLoading(true);
+    try {
+      const response = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: quickCheckinText.trim(),
+          emoji: quickCheckinEmoji
+        })
+      });
+
+      if (response.ok) {
+        setQuickCheckinText('');
+        setQuickCheckinEmoji(0);
+        setShowQuickCheckin(false);
+        alert('Check-in saved! 💝');
+      } else {
+        alert('Failed to save check-in. Please try again.');
+      }
+    } catch (error) {
+      console.error('Quick check-in failed:', error);
+      alert('Failed to save check-in. Please try again.');
+    } finally {
+      setQuickCheckinLoading(false);
     }
   };
 
@@ -245,6 +282,13 @@ export default function Home() {
               </button>
               
               <button 
+                onClick={() => setShowQuickCheckin(true)}
+                className="w-full bg-blue-500 text-white py-4 px-6 rounded-xl font-medium hover:bg-blue-600 transition-colors"
+              >
+                Quick Check In
+              </button>
+              
+              <button 
                 onClick={() => router.push('/collection')}
                 className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
               >
@@ -267,6 +311,74 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Quick Check-in Modal */}
+      {showQuickCheckin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Quick Check In</h2>
+              <button
+                onClick={() => setShowQuickCheckin(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  How are you feeling?
+                </label>
+                <textarea
+                  value={quickCheckinText}
+                  onChange={(e) => setQuickCheckinText(e.target.value)}
+                  placeholder="I'm feeling..."
+                  className="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mood: {quickCheckinEmoji === -2 ? '😢' : quickCheckinEmoji === -1 ? '😕' : quickCheckinEmoji === 0 ? '😐' : quickCheckinEmoji === 1 ? '🙂' : '😊'}
+                </label>
+                <input
+                  type="range"
+                  min="-2"
+                  max="2"
+                  value={quickCheckinEmoji}
+                  onChange={(e) => setQuickCheckinEmoji(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>😢</span>
+                  <span>😕</span>
+                  <span>😐</span>
+                  <span>🙂</span>
+                  <span>😊</span>
+                </div>
+              </div>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowQuickCheckin(false)}
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleQuickCheckin}
+                  disabled={quickCheckinLoading || !quickCheckinText.trim()}
+                  className="flex-1 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {quickCheckinLoading ? 'Saving...' : 'Save Check In'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
