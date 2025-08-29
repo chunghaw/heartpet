@@ -7,12 +7,12 @@ const items = [
 
 export function HowItWorks() {
   return (
-    <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((it) => (
-        <div key={it.title} className="rounded-xl border border-slate-200 bg-white p-4 min-h-[140px] flex flex-col">
-          <div className="text-xl mb-3">{it.emoji}</div>
-          <div className="text-sm font-medium text-black mb-3">{it.title}</div>
-          <div className="text-xs text-black leading-relaxed flex-1 break-words">{it.desc}</div>
+        <div key={it.title} className="rounded-xl border border-slate-200 bg-white p-3 min-h-[100px] flex flex-col">
+          <div className="text-lg mb-2">{it.emoji}</div>
+          <div className="text-sm font-medium text-black mb-2">{it.title}</div>
+          <div className="text-xs text-black leading-tight flex-1">{it.desc}</div>
         </div>
       ))}
     </div>
