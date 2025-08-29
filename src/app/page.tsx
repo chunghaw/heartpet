@@ -7,6 +7,8 @@ import { LogIn, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import HeartPetLogo from '@/components/HeartPetLogo';
 import PetImage from '@/components/PetImage';
+import { HomeIntro } from '@/components/HomeIntro';
+import { HowItWorks } from '@/components/HowItWorks';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -213,6 +215,9 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{pet.name}</h2>
               <p className="text-gray-600 mb-4 capitalize">Level {pet.level || 1} • {pet.stage} • {pet.species}</p>
               
+              {/* Hero Intro */}
+              <HomeIntro petName={pet.name} />
+              
               {/* XP Progress */}
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -239,10 +244,16 @@ export default function Home() {
                 Check In & Care
               </button>
               
-              <button className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200">
+              <button 
+                onClick={() => router.push('/collection')}
+                className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
+              >
                 View Collection
               </button>
             </div>
+            
+            {/* How It Works */}
+            <HowItWorks />
           </div>
         ) : (
           <div className="text-center py-12">

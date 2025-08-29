@@ -28,8 +28,7 @@ function xpForNextLevel(currentLevel: number) {
 
 function stageForLevel(level: number) { 
   if (level >= 10) return 'floof'
-  if (level >= 7) return 'sproutling' 
-  if (level >= 4) return 'hatchling'
+  if (level >= 2) return 'hatchling'
   return 'egg'
 }
 
