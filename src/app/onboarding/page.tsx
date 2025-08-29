@@ -22,7 +22,7 @@ const PET_SPECIES = [
     id: 'dragon', 
     name: 'Dragon', 
     description: 'A magical and wise companion with a gentle heart',
-    image: '/pets/dragon.riv'
+    image: '/pets/dragon_red.PNG'
   }
 ];
 
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
             value={petName}
             onChange={(e) => setPetName(e.target.value)}
             placeholder="Enter a name..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black placeholder-gray-600"
             maxLength={20}
           />
         </div>
