@@ -274,6 +274,18 @@ export default function Home() {
                   Hobbies & Wishlist personalization is under development
                 </p>
               </div>
+              
+              <div className="text-center">
+                <button 
+                  onClick={() => alert('Music Recommendation feature coming soon!')}
+                  className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
+                >
+                  Music Recommendation
+                </button>
+                <p className="text-sm text-gray-600 mt-2">
+                  Mood-based music suggestions is under development
+                </p>
+              </div>
             </div>
           </div>
         ) : (
