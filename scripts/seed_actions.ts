@@ -6,7 +6,7 @@
 import 'dotenv/config';
 import crypto from 'node:crypto';
 import OpenAI from 'openai';
-import { sql } from '@vercel/postgres';
+import { Client } from 'pg';
 
 // Adjust the relative import if your path differs:
 import { ensureActionsCollection, upsertActionVector } from '../src/lib/milvus';
@@ -21,15 +21,16 @@ function reqEnv(key: string) {
 
 // Sanity check envs
 reqEnv('OPENAI_API_KEY');
-reqEnv('VERCEL_POSTGRES_URL');
-reqEnv('MILVUS_URL');
-reqEnv('MILVUS_TOKEN');
+reqEnv('DATABASE_URL');
+reqEnv('MILVUS_URI');
+reqEnv('MILVUS_USER');
+reqEnv('MILVUS_PASSWORD');
 
 // Ensure actions table has 'why' and 'tags' columns
-async function ensureColumns() {
-  await sql`ALTER TABLE actions ADD COLUMN IF NOT EXISTS why text;`;
+async function ensureColumns(client: Client) {
+  await client.query(`ALTER TABLE actions ADD COLUMN IF NOT EXISTS why text;`);
   // tags used for weather-aware retrieval; safe default empty array
-  await sql`ALTER TABLE actions ADD COLUMN IF NOT EXISTS tags text[] DEFAULT ARRAY[]::text[];`;
+  await client.query(`ALTER TABLE actions ADD COLUMN IF NOT EXISTS tags text[] DEFAULT ARRAY[]::text[];`);
 }
 
 // Types

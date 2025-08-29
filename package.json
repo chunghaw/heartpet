@@ -14,7 +14,9 @@
     "test:milvus": "tsx scripts/test-milvus.ts",
     "add:why": "tsx scripts/add-why-column.ts",
     "add:tags": "tsx scripts/add-tags-column.ts",
-    "seed:actions": "tsx scripts/seed_actions.ts"
+    "seed:actions": "tsx scripts/seed_actions.ts",
+    "seed:simple": "tsx scripts/simple-seed-actions.ts",
+    "add:embeddings": "tsx scripts/add-embeddings.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

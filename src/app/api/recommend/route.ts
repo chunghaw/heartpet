@@ -54,12 +54,14 @@ export async function POST(req: NextRequest) {
 
     // Fallback: brute force cosine in Postgres on small dataset
     if (!candidates.length) {
-      const { rows } = await sql`select id as action_id, category, embedding from actions`
+      const { rows } = await sql`select id as action_id, category, embedding from actions where embedding is not null`
       
-      function cosine(a: number[], b: number[]) {
+      function cosine(a: number[], b: any) {
+        // Handle both array and JSON formats
+        const bArray = Array.isArray(b) ? b : JSON.parse(b);
         let dot = 0, na = 0, nb = 0
         for (let i = 0; i < a.length; i++) { 
-          const x = a[i], y = b[i]
+          const x = a[i], y = bArray[i]
           dot += x * y
           na += x * x
           nb += y * y 
