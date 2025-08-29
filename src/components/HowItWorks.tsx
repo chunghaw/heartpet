@@ -1,6 +1,6 @@
 const items = [
-  { emoji: "📝", title: "Check in", desc: "Say a few words or add a selfie/surroundings." },
-  { emoji: "💬", title: "AI reflects", desc: "One gentle acknowledgement + a curious question." },
+  { emoji: "📝", title: "Check in", desc: "Say a few words or add a selfie or surroundings." },
+  { emoji: "💬", title: "AI reflects", desc: "One gentle acknowledge + a curious question." },
   { emoji: "🎯", title: "Care Quest", desc: "One safe action · 1–3 minutes." },
   { emoji: "🌸", title: "Bloom", desc: "Earn XP, evolve, unlock cozy props." },
 ];
