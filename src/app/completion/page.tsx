@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import PetImage from '@/components/PetImage'
+import { Pet } from '@/types'
 
 interface CompletionData {
   action: {
@@ -23,6 +25,7 @@ export default function CompletionPage() {
   const [completionData, setCompletionData] = useState<CompletionData | null>(null)
   const [helpful, setHelpful] = useState<boolean | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [pet, setPet] = useState<Pet | null>(null)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('completionData')
@@ -31,6 +34,20 @@ export default function CompletionPage() {
     } else {
       router.push('/')
     }
+
+    // Fetch pet data
+    const fetchPet = async () => {
+      try {
+        const response = await fetch('/api/pet')
+        if (response.ok) {
+          const data = await response.json()
+          setPet(data.pet)
+        }
+      } catch (error) {
+        console.error('Failed to fetch pet:', error)
+      }
+    }
+    fetchPet()
   }, [router])
 
   const handleHelpful = async (value: boolean) => {
@@ -44,7 +61,7 @@ export default function CompletionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: session.user.id,
-          petId: 'temp', // Will need to get from context
+          petId: pet?.id || 'temp',
           actionId: completionData.action.action_id,
           seconds: 0, // Not needed for feedback
           foreground_ratio: 1,
@@ -94,6 +111,11 @@ export default function CompletionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       <div className="max-w-md mx-auto">
+        {pet && (
+          <div className="flex justify-center mb-4">
+            <PetImage pet={pet} size="lg" />
+          </div>
+        )}
         <div className="bg-white rounded-2xl p-6 shadow-lg text-center">
           {/* Celebration */}
           <div className="mb-6">

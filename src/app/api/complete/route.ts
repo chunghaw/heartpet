@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       xp = Number(upd.rows[0].xp)
       const level = calculateLevel(xp)
       const stage = stageForLevel(level)
-      const xpForNext = xpForNextLevel(level)
+      xpForNext = xpForNextLevel(level)
       
       await sql`update pets set stage=${stage} where id=${b.petId}`
       newLevel = level

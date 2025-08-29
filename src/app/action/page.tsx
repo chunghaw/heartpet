@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import PetImage from '@/components/PetImage'
+import { Pet } from '@/types'
 
 interface Action {
   action_id: string
@@ -24,6 +26,7 @@ export default function ActionPage() {
   const [showHold, setShowHold] = useState(false)
   const [holdProgress, setHoldProgress] = useState(0)
   const [completed, setCompleted] = useState(false)
+  const [pet, setPet] = useState<Pet | null>(null)
   
   const holdRef = useRef<NodeJS.Timeout>()
   const startTimeRef = useRef<number>()
@@ -37,6 +40,20 @@ export default function ActionPage() {
     } else {
       router.push('/checkin')
     }
+
+    // Fetch pet data
+    const fetchPet = async () => {
+      try {
+        const response = await fetch('/api/pet')
+        if (response.ok) {
+          const data = await response.json()
+          setPet(data.pet)
+        }
+      } catch (error) {
+        console.error('Failed to fetch pet:', error)
+      }
+    }
+    fetchPet()
   }, [router])
 
   useEffect(() => {
@@ -131,7 +148,7 @@ export default function ActionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: session.user.id,
-          petId: 'temp', // Will need to get from context
+          petId: pet?.id || 'temp',
           actionId: action.action_id,
           seconds: action.seconds,
           foreground_ratio: foregroundRatio,
@@ -147,7 +164,9 @@ export default function ActionPage() {
       sessionStorage.setItem('completionData', JSON.stringify({
         action,
         xp: data.xp,
-        newStage: data.newStage
+        newLevel: data.newLevel,
+        newStage: data.newStage,
+        xpForNext: data.xpForNext
       }))
       
       // Navigate to completion page after a short delay
@@ -183,6 +202,11 @@ export default function ActionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       <div className="max-w-md mx-auto">
+        {pet && (
+          <div className="flex justify-center mb-4">
+            <PetImage pet={pet} size="md" />
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
           {action.title}
         </h1>

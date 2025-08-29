@@ -127,7 +127,7 @@ export default function CheckInPage() {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">
           {pet && (
-            <div className="mb-4">
+            <div className="flex justify-center mb-4">
               <PetImage pet={pet} size="md" />
             </div>
           )}

@@ -206,7 +206,7 @@ export default function Home() {
           <div className="space-y-6">
             {/* Pet Display */}
             <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-              <div className="mx-auto mb-4">
+              <div className="flex justify-center mb-4">
                 <PetImage pet={pet} size="lg" />
               </div>
               
