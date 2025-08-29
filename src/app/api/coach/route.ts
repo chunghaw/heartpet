@@ -75,7 +75,13 @@ async function analyzeInput(input: any) {
     const cues = { ...(body.weather || {}) }
     console.log('🌤️ Weather cues:', cues);
 
-    const prompt = `User says: "${body.text}"\n\nAnalyze this and respond with the JSON format specified.`
+    const prompt = `User says: "${body.text}"
+
+${body.imageSelfie ? 'User provided a selfie image for analysis.' : 'No selfie provided.'}
+${body.imageEnv ? 'User provided surroundings image for analysis.' : 'No surroundings image provided.'}
+${body.weather ? `Weather context: ${JSON.stringify(body.weather)}` : 'No weather data provided.'}
+
+Analyze this information and respond with the JSON format specified.`
     console.log('📝 Sending prompt to OpenAI:', prompt);
     
     const response = await openai.chat.completions.create({
@@ -101,7 +107,10 @@ async function analyzeInput(input: any) {
       console.log('⚠️ OpenAI response parse failed, using fallback:', parseError);
       // Fallback response
       return {
-        empathy: "I hear you're going through something challenging. It's okay to feel this way.",
+        selfie_insights: null,
+        surroundings_insights: null,
+        weather_insights: null,
+        reflection: "I hear you're going through something challenging. It's okay to feel this way.",
         question: "What's one small thing that might help you feel a bit better right now?",
         mood: "sensitive",
         energy: "low",
@@ -216,7 +225,10 @@ export async function POST(req: NextRequest) {
     if (analysis.red_flags) {
       console.log('🚩 Red flags detected, returning crisis response');
       return NextResponse.json({ 
-        empathy: analysis.empathy, 
+        selfie_insights: analysis.selfie_insights,
+        surroundings_insights: analysis.surroundings_insights,
+        weather_insights: analysis.weather_insights,
+        reflection: analysis.reflection, 
         question: analysis.question, 
         red_flags: true, 
         crisisBanner: true, 
@@ -236,7 +248,10 @@ export async function POST(req: NextRequest) {
     console.log('✅ Recommendation complete:', JSON.stringify(recommendation, null, 2));
     
     const finalResponse = { 
-      empathy: analysis.empathy, 
+      selfie_insights: analysis.selfie_insights,
+      surroundings_insights: analysis.surroundings_insights,
+      weather_insights: analysis.weather_insights,
+      reflection: analysis.reflection, 
       question: analysis.question, 
       red_flags: false, 
       micro_action: recommendation, 
