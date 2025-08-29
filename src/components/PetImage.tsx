@@ -23,9 +23,9 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
       case 'kitten':
         return '/pets/cat-graywhite.png'
       case 'dragon':
-        return '/pets/dragon.riv'
+        return '/pets/dragon-simple.svg'
       case 'pocket_dragon': // Handle legacy species name
-        return '/pets/dragon.riv'
+        return '/pets/dragon-simple.svg'
       case 'cloud_kitten': // Handle legacy species name
         return '/pets/cat-graywhite.png'
       case 'seedling_spirit': // Handle legacy species name
@@ -49,20 +49,6 @@ export default function PetImage({ pet, size = 'md', className = '' }: PetImageP
   }
 
   const imageSrc = getPetImage()
-  const isRive = imageSrc.endsWith('.riv')
-
-  if (isRive) {
-    // For Rive files, display the actual file
-    return (
-      <div className={`${getSizeClasses()} relative ${className}`}>
-        <img
-          src={imageSrc}
-          alt={`${pet.name} the ${pet.species}`}
-          className="rounded-full object-cover w-full h-full"
-        />
-      </div>
-    )
-  }
 
   return (
     <div className={`${getSizeClasses()} relative ${className}`}>
