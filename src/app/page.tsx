@@ -6,6 +6,7 @@ import { Pet } from '@/types';
 import { LogIn, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import HeartPetLogo from '@/components/HeartPetLogo';
+import PetImage from '@/components/PetImage';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -205,12 +206,12 @@ export default function Home() {
           <div className="space-y-6">
             {/* Pet Display */}
             <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-              <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <HeartPetLogo className="w-16 h-16 text-green-600" />
+              <div className="mx-auto mb-4">
+                <PetImage pet={pet} size="lg" />
               </div>
               
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{pet.name}</h2>
-              <p className="text-gray-600 mb-4 capitalize">Level {pet.level || 1} • {pet.stage} • {pet.species.replace('_', ' ')}</p>
+              <p className="text-gray-600 mb-4 capitalize">Level {pet.level || 1} • {pet.stage} • {pet.species}</p>
               
               {/* XP Progress */}
               <div className="mb-4">

@@ -35,8 +35,7 @@ function stageForLevel(level: number) {
 
 const UpdatePetBody = z.object({
   name: z.string().min(1).max(50).optional(),
-  species: z.enum(['seedling_spirit', 'cloud_kitten', 'pocket_dragon']).optional(),
-  color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
+  species: z.enum(['doggo', 'kitten', 'dragon']).optional(),
   size: z.enum(['sm', 'md', 'lg']).optional(),
   breed: z.string().max(100).optional(),
 });
@@ -88,9 +87,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, species, color } = body;
+    const { name, species } = body;
 
-    if (!name || !species || !color) {
+    if (!name || !species) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -103,7 +102,7 @@ export async function POST(request: NextRequest) {
     // Create new pet
     const { rows } = await sql`
       INSERT INTO pets (user_id, name, species, color, size, stage, xp)
-      VALUES (${session.user.id}, ${name}, ${species}, ${color}, 'md', 'egg', 0)
+      VALUES (${session.user.id}, ${name}, ${species}, '#22c55e', 'md', 'egg', 0)
       RETURNING *
     `;
 
@@ -142,10 +141,6 @@ export async function PUT(request: NextRequest) {
     if (body.species !== undefined) {
       updates.push(`species = $${paramIndex++}`);
       values.push(body.species);
-    }
-    if (body.color !== undefined) {
-      updates.push(`color = $${paramIndex++}`);
-      values.push(body.color);
     }
     if (body.size !== undefined) {
       updates.push(`size = $${paramIndex++}`);

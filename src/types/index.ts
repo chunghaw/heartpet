@@ -9,7 +9,7 @@ export interface Pet {
   id: string;
   user_id: string;
   name: string;
-  species: 'seedling_spirit' | 'cloud_kitten' | 'pocket_dragon';
+  species: 'doggo' | 'kitten' | 'dragon';
   color: string;
   size: 'sm' | 'md' | 'lg';
   breed?: string;

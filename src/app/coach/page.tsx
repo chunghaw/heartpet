@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SafetyBanner from '@/components/SafetyBanner'
+import PetImage from '@/components/PetImage'
+import { Pet } from '@/types'
 
 interface CoachResponse {
   selfie_insights?: string | null
@@ -40,6 +42,7 @@ function CoachPageContent() {
   
   const [response, setResponse] = useState<CoachResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [pet, setPet] = useState<Pet | null>(null)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('coachResponse')
@@ -50,6 +53,20 @@ function CoachPageContent() {
       // Redirect back to check-in if no response
       router.push('/checkin')
     }
+
+    // Fetch pet data
+    const fetchPet = async () => {
+      try {
+        const response = await fetch('/api/pet')
+        if (response.ok) {
+          const data = await response.json()
+          setPet(data.pet)
+        }
+      } catch (error) {
+        console.error('Failed to fetch pet:', error)
+      }
+    }
+    fetchPet()
   }, [router])
 
   if (!session?.user) {
@@ -117,7 +134,21 @@ function CoachPageContent() {
           {/* Reflection */}
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-black mb-2">💭 Reflection</h2>
-            <p className="text-black leading-relaxed">{response.reflection}</p>
+            <div className="flex items-start space-x-3">
+              {pet && (
+                <div className="flex-shrink-0">
+                  <PetImage pet={pet} size="sm" />
+                </div>
+              )}
+              <div className="flex-1">
+                <p className="text-black leading-relaxed">{response.reflection}</p>
+                {pet && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    — {pet.name} 💝
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
           
           {/* Question */}

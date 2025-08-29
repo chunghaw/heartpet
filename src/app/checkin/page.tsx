@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import CameraSheet from '@/components/CameraSheet'
+import PetImage from '@/components/PetImage'
+import { Pet } from '@/types'
 
 export default function CheckInPage() {
   const { data: session } = useSession()
@@ -17,6 +19,22 @@ export default function CheckInPage() {
   const [imageEnv, setImageEnv] = useState<string>('')
   const [weather, setWeather] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [pet, setPet] = useState<Pet | null>(null)
+
+  useEffect(() => {
+    const fetchPet = async () => {
+      try {
+        const response = await fetch('/api/pet')
+        if (response.ok) {
+          const data = await response.json()
+          setPet(data.pet)
+        }
+      } catch (error) {
+        console.error('Failed to fetch pet:', error)
+      }
+    }
+    fetchPet()
+  }, [])
 
   if (!session?.user) {
     return <div className="p-4">Please sign in to continue.</div>
@@ -107,9 +125,21 @@ export default function CheckInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-6 text-black">
-          How are you feeling?
-        </h1>
+        <div className="text-center mb-6">
+          {pet && (
+            <div className="mb-4">
+              <PetImage pet={pet} size="md" />
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-black">
+            How are you feeling?
+          </h1>
+          {pet && (
+            <p className="text-sm text-gray-600 mt-1">
+              {pet.name} is here to help you feel better 💝
+            </p>
+          )}
+        </div>
         
         <div className="bg-white rounded-2xl p-6 shadow-lg">
           {/* Text Input */}
