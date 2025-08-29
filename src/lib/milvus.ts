@@ -7,15 +7,24 @@ export function getMilvus() {
   const username = process.env.MILVUS_USER!
   const password = process.env.MILVUS_PASSWORD!
   
+  // Handle Zilliz Cloud serverless URLs
+  let address = url
+  if (url.includes('serverless.aws-eu-central-1.cloud.zilliz.com')) {
+    // Extract the cluster identifier from the serverless URL
+    address = url.replace('https://', '').replace('http://', '')
+  } else {
+    address = url.replace('https://', '').replace('http://', '')
+  }
+  
   return new MilvusClient({ 
-    address: url.replace('https://', '').replace('http://', ''),
+    address,
     username,
     password,
     ssl: url.startsWith('https://')
   })
 }
 
-export const COLLECTION = 'content_vectors'
+export const COLLECTION = process.env.MILVUS_COLLECTION || 'heartpet_actions'
 
 export async function ensureActionsCollection() {
   try {
@@ -84,7 +93,7 @@ export async function searchTopK(embedding: number[], k = 8) {
     
     const r = await milvus.search({
       collection_name: COLLECTION,
-      vector: [embedding],
+      vector: embedding,
       anns_field: 'embedding',
       output_fields: ['action_id', 'category'],
       params: { 
