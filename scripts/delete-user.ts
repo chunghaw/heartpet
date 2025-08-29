@@ -61,7 +61,7 @@ async function deleteUser(email: string) {
 }
 
 // Run the deletion
-const email = 'chunghaw35@gmail.com'
+const email = 'chunghawtan35@gmail.com'
 deleteUser(email)
   .then(() => {
     console.log('✅ User deletion completed successfully')
