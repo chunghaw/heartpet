@@ -93,6 +93,14 @@ export async function POST(req: NextRequest) {
 
     const cues = { ...env, ...selfie, ...(body.weather || {}) }
     
+    // Merge weather affinity flags
+    if (body.weather) {
+      cues.weather = body.weather.weather;
+      cues.good_outdoor_brief = Boolean(body.weather.good_outdoor_brief);
+      cues.good_outdoor_sheltered = Boolean(body.weather.good_outdoor_sheltered);
+      cues.good_window_nature = Boolean(body.weather.good_window_nature);
+    }
+    
     const user = `
 TEXT: ${body.text}
 EMOJI: ${body.emoji ?? 'none'}

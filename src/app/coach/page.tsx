@@ -16,12 +16,14 @@ interface CoachResponse {
     steps: string[]
     seconds: number
     category: string
+    tags?: string[]
     why: string
     explain: {
       cos: number
       weight: number
       fit_energy: number
       novelty: number
+      weather_affinity?: number
     }
   }
   cues?: any
@@ -113,9 +115,14 @@ function CoachPageContent() {
                 <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
                   {response.micro_action.category}
                 </span>
-                <span className="inline-block bg-blue-200 px-2 py-1 rounded">
+                <span className="inline-block bg-blue-200 px-2 py-1 rounded mr-2">
                   {response.micro_action.seconds}s
                 </span>
+                {response.micro_action.tags && response.micro_action.tags.length > 0 && (
+                  <span className="inline-block bg-green-200 px-2 py-1 rounded">
+                    {response.micro_action.tags.slice(0, 2).join(', ')}
+                  </span>
+                )}
               </div>
               <ol className="text-sm text-blue-800 space-y-1">
                 {response.micro_action.steps.map((step, index) => (
@@ -166,6 +173,20 @@ function CoachPageContent() {
                 {JSON.stringify(response, null, 2)}
               </pre>
             </details>
+            {response.micro_action && (
+              <details className="text-sm mt-2">
+                <summary className="cursor-pointer text-gray-600">Scoring Breakdown</summary>
+                <div className="mt-2 p-2 bg-gray-200 rounded text-xs">
+                  <div>Cosine Similarity: {response.micro_action.explain.cos}</div>
+                  <div>Category Weight: {response.micro_action.explain.weight}</div>
+                  <div>Energy Fit: {response.micro_action.explain.fit_energy}</div>
+                  <div>Novelty: {response.micro_action.explain.novelty}</div>
+                  {response.micro_action.explain.weather_affinity && (
+                    <div>Weather Affinity: {response.micro_action.explain.weather_affinity}</div>
+                  )}
+                </div>
+              </details>
+            )}
           </div>
         )}
       </div>

@@ -6,6 +6,9 @@ import { z } from 'zod'
 import OpenAI from 'openai'
 import { sql } from '@vercel/postgres'
 import { searchTopK } from '@/lib/milvus'
+import { weatherAffinity } from '@/lib/weather-affinity'
+import { buildQuery } from '@/lib/query'
+import { COMPOSE_ACTION_SYSTEM } from '@/lib/prompts'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -28,7 +31,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = Body.parse(await req.json())
     
-    const q = `focus:${body.focus.join(',')} energy:${body.energy} mood:${body.mood} text:${body.text} cues:${JSON.stringify(body.cues || {})}`
+    const q = buildQuery({
+      text: body.text,
+      mood: body.mood,
+      energy: body.energy,
+      focus: body.focus,
+      cues: body.cues || {}
+    })
     const emb = await openai.embeddings.create({ 
       model: 'text-embedding-3-small', 
       input: q 
@@ -88,26 +97,56 @@ export async function POST(req: NextRequest) {
 
     const scored = data.rows.map((row: any) => {
       const c = candidates.find(x => x.action_id === row.id)!
+      const tags: string[] = row.tags || []
       const weight = wMap.get(row.category) ?? 1
       const fit = fitEnergy(body.energy, body.energy as any) // simple for now; can tag actions later
       const nov = 1 - Math.min(1, (recentMap.get(row.id) ?? 0) / 2)
-      const final = 0.65 * c.score + 0.25 * weight + 0.07 * fit + 0.03 * nov
-      return { ...row, cos: c.score, weight, fit_energy: fit, novelty: nov, final }
+      const waff = weatherAffinity(tags, body.cues)
+      
+      const final = 0.65 * c.score + 0.25 * weight + 0.07 * fit + 0.03 * nov + waff
+      return { ...row, cos: c.score, weight, fit_energy: fit, novelty: nov, weather_affinity: +waff.toFixed(3), final }
     }).sort((a, b) => b.final - a.final)
 
     const best = scored[0]
+    
+    // Compose creative variant based on context
+    let composed = { title: best.title, steps: best.steps, seconds: best.seconds };
+    try {
+      const composeInput = {
+        base: { title: best.title, steps: best.steps, seconds: best.seconds, tags: best.tags, why: best.why, category: best.category },
+        cues: body.cues, mood: body.mood, energy: body.energy, text: body.text
+      };
+      
+      const comp = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0.6,
+        messages: [
+          { role: "system", content: COMPOSE_ACTION_SYSTEM },
+          { role: "user", content: JSON.stringify(composeInput) }
+        ]
+      });
+      
+      try { 
+        composed = JSON.parse(comp.choices[0]?.message?.content || "{}"); 
+      } catch {} 
+    } catch (error) {
+      console.log('Composition failed, using base action:', error);
+    }
+    
     return NextResponse.json({
       action_id: best.id,
-      title: best.title,
-      steps: best.steps,
-      seconds: best.seconds,
+      title: composed.title || best.title,
+      steps: composed.steps?.length ? composed.steps : best.steps,
+      seconds: composed.seconds || best.seconds,
       category: best.category,
+      tags: best.tags,
       why: best.why,
       explain: { 
         cos: +best.cos.toFixed(3), 
         weight: +best.weight.toFixed(2), 
         fit_energy: best.fit_energy, 
-        novelty: +best.novelty.toFixed(2) 
+        novelty: +best.novelty.toFixed(2),
+        weather_affinity: best.weather_affinity
       }
     })
   } catch (error) {
