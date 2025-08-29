@@ -254,7 +254,7 @@ export default function Home() {
               <div className="text-center">
                 <button 
                   onClick={() => router.push('/collection')}
-                  className="w-full bg-white text-gray-700 py-4 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors border border-gray-200"
+                  className="w-full bg-blue-500 text-white py-4 px-6 rounded-xl font-medium hover:bg-blue-600 transition-colors"
                 >
                   View History
                 </button>
