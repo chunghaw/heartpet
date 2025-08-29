@@ -94,7 +94,7 @@ export default function CheckInPage() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="I'm feeling..."
-              className="w-full h-24 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-24 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-600"
             />
           </div>
           
@@ -111,7 +111,7 @@ export default function CheckInPage() {
               onChange={(e) => setEmoji(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-black mt-1">
               <span>😢</span>
               <span>😕</span>
               <span>😐</span>
@@ -131,7 +131,7 @@ export default function CheckInPage() {
                   setCameraFacing('user')
                   setCameraOpen(true)
                 }}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black font-medium"
               >
                 📸 Selfie
               </button>
@@ -140,7 +140,7 @@ export default function CheckInPage() {
                   setCameraFacing('environment')
                   setCameraOpen(true)
                 }}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black font-medium"
               >
                 🏠 Surroundings
               </button>
@@ -179,7 +179,7 @@ export default function CheckInPage() {
           <div className="mb-6">
             <button
               onClick={handleLocation}
-              className="w-full py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black font-medium"
             >
               🌍 Use my location for weather
             </button>
